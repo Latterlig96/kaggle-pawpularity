@@ -1,1 +1,1 @@
-from .swin_transformers import *
+from .model import *
