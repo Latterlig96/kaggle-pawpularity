@@ -12,8 +12,8 @@ class TrainAugmentation:
                                        A.VerticalFlip(),
                                        A.RandomBrightnessContrast(),
                                        A.RandomCrop(),
-                                       ToTensorV2(),
-                                       A.Normalize(config.image_mean, config.image_std)], p=1)
+                                       A.Normalize(config.image_mean, config.image_std),
+                                       ToTensorV2()], p=1)
 
     def __call__(self, x: np.ndarray): 
         transform = self.augmentation(image=x)
@@ -24,9 +24,19 @@ class ValAugmentation:
     def __init__(self, 
                  config):
         self.augmentation = A.Compose([A.Resize(height=config.input_dim[0], width=config.input_dim[1]),
-                                       ToTensorV2(),
-                                       A.Normalize(config.image_mean, config.image_std)], p=1)
+                                       A.Normalize(config.image_mean, config.image_std),
+                                       ToTensorV2()], p=1)
     
     def __call__(self, x: np.ndarray):
         transform = self.augmentation(image=x)
         return transform['image']
+
+class Augmentation:
+
+    def __init__(self, config):
+        self.config = config
+    
+    def get_augmentation_by_mode(self, mode):
+        if mode == 'train':
+            return TrainAugmentation(self.config)
+        return ValAugmentation(self.config)
