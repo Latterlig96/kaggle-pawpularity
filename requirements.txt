@@ -5,5 +5,8 @@ torchvision==0.9.0+cu111
 pytorch-lightning==1.4.9
 albumentations
 grad-cam
+scikit-learn
+pandas
+ttach
 opencv-contrib-python
 timm

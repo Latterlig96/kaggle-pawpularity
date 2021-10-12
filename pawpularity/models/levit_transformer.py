@@ -4,14 +4,15 @@ import torch.nn as nn
 
 class Levit(nn.Module):
 
-    def __init__(self):
+    def __init__(self, cfg):
         super().__init__()
+        self.cfg = cfg
         self.backbone = timm.create_model(
             'levit_256', pretrained=True, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
         self.fc = nn.Sequential(
-            nn.Dropout(0.5), nn.Linear(num_features, self.cfg.model.output_dim)
+            nn.Dropout(0.5), nn.Linear(num_features, self.cfg.output_dim)
         )
     
     def forward(self, x):

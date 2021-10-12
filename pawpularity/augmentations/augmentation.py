@@ -1,17 +1,18 @@
 import albumentations as A
-from albumentations.pytorch.transforms import ToTensorV2
 import numpy as np
+from albumentations.augmentations.geometric.transforms import Affine
+from albumentations.augmentations.transforms import ColorJitter, Flip
+from albumentations.pytorch.transforms import ToTensorV2
 
 
 class TrainAugmentation:
 
     def __init__(self,
                  config):
-        self.augmentation = A.Compose([A.Resize(height=config.input_dim[0], width=config.input_dim[1], p=1),
-                                       A.HorizontalFlip(),
-                                       A.VerticalFlip(),
-                                       A.RandomBrightnessContrast(),
-                                       A.RandomCrop(),
+        self.augmentation = A.Compose([A.Resize(height=config.image_size[0], width=config.image_size[1], p=1),
+                                       Flip(),
+                                       ColorJitter(**config.augmentation['color_jitter']),
+                                       Affine(**config.augmentation['affine']),
                                        A.Normalize(config.image_mean, config.image_std),
                                        ToTensorV2()], p=1)
 
@@ -23,7 +24,7 @@ class ValAugmentation:
 
     def __init__(self, 
                  config):
-        self.augmentation = A.Compose([A.Resize(height=config.input_dim[0], width=config.input_dim[1]),
+        self.augmentation = A.Compose([A.Resize(height=config.image_size[0], width=config.image_size[1]),
                                        A.Normalize(config.image_mean, config.image_std),
                                        ToTensorV2()], p=1)
     

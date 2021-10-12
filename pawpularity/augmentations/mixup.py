@@ -1,5 +1,6 @@
-import torch
 import numpy as np
+import torch
+
 
 def mixup(x: torch.Tensor, y: torch.Tensor, alpha: float = 1.0):
     if not alpha > 0:

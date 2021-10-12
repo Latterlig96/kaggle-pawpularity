@@ -1,11 +1,15 @@
 class Config:
     seed: int = 47
-    epochs: int = 100
+    epochs: int = 10
+    shuffle: bool = True
     n_splits: int = 5
+    root: str = './pawpularity/data'
+    model_name: str = 'Levit'
     image_size: list = [224, 224]
     image_mean: list = [0.485, 0.456, 0.406]
     image_std: list = [0.229, 0.224, 0.225]
-    
+    output_dim: int = 1
+
     trainer: dict = {
               'gpus': 1,
               'accumulate_grad_batches': 1,
@@ -13,7 +17,22 @@ class Config:
               'fast_dev_run': False,
               'num_sanity_val_steps': 0,
               'resume_from_checkpoint': None,
+        }
+    
+    augmentation: dict = {
+        'color_jitter': {
+            'brightness': 0.1,
+            'contrast': 0.1,
+            'saturation': 0.1,
+            'hue': 0.1
         },
+        'affine': {
+            'scale': (0.9, 1.1),
+            'translate_percent': (0.1, 0.1),
+            'rotate': 15
+        }
+
+    }
 
     train_loader: dict = {
         'batch_size': 8,
@@ -32,7 +51,7 @@ class Config:
         }
 
     optimizer: dict = {
-        'name': "AdamW",
+        'name': "Adam",
         'params': {
             'lr': 1e-5
         }
@@ -44,6 +63,6 @@ class Config:
                   'T_0': 20,
                   'eta_min': 1e-4,
               }
-        },
+        }
 
-    loss: dict = 'BCEWithLogitsLoss'
+    loss: str = 'BCEWithLogitsLoss'

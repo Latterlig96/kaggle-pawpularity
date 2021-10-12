@@ -1,6 +1,6 @@
-from pytorch_lightning import LightningDataModule
 import cv2
-from torch.utils.data import Dataset, DataLoader
+from pytorch_lightning import LightningDataModule
+from torch.utils.data import DataLoader, Dataset
 
 
 class PawDataset(Dataset):
@@ -35,18 +35,18 @@ class PawModule(LightningDataModule):
         super().__init__()
         self.train_df = train_df
         self.val_df = val_df
-        self.transform = transform
+        self.transform = transform(cfg)
         self.cfg = cfg
     
     def _create_loader(self, train: bool = True):
         if train:
-            return PawDataset(self.train_df, self.transform, self.cfg)
-        return PawDataset(self.val_df, self.transform, self.cfg)
+            return PawDataset(self.train_df, self.transform.get_augmentation_by_mode('train'), self.cfg)
+        return PawDataset(self.val_df, self.transform.get_augmentation_by_mode('val'), self.cfg)
     
     def train_dataloader(self):
         dataset = self._create_loader(True)
-        return DataLoader(dataset, **self._cfg.train_loader)
+        return DataLoader(dataset, **self.cfg.train_loader)
 
     def val_dataloader(self):
         dataset = self._create_loader(False)
-        return DataLoader(dataset, **self._cfg.val_loader)
+        return DataLoader(dataset, **self.cfg.val_loader)

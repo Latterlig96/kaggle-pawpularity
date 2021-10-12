@@ -1,11 +1,9 @@
-import swin_transformer
 import torch
+from pawpularity.augmentations import mixup
+from pytorch_grad_cam import GradCAMPlusPlus
 from pytorch_lightning import LightningModule
 
-import efficientnet
-import levit_transformer
-from pytorch_grad_cam import GradCAMPlusPlus
-from ..augmentations import mixup, Augmentation
+from . import efficientnet, levit_transformer, swin_transformers
 
 
 class Model(LightningModule):
@@ -15,9 +13,9 @@ class Model(LightningModule):
         'EfficientNetV2Medium': efficientnet.__dict__['EfficientNetV2Medium'],
         'EfficientNetV2Small': efficientnet.__dict__['EfficientNetV2Small'],
         'Levit': levit_transformer.__dict__['Levit'],
-        'SwinLarge': swin_transformer.__dict__['SwinLarge'],
-        'SwinSmall': swin_transformer.__dict__['SwinSmall'],
-        'SwinTiny': swin_transformer.__dict__['SwinTiny']
+        'SwinLarge': swin_transformers.__dict__['SwinLarge'],
+        'SwinSmall': swin_transformers.__dict__['SwinSmall'],
+        'SwinTiny': swin_transformers.__dict__['SwinTiny']
     }
 
     supported_loss = {
@@ -37,28 +35,27 @@ class Model(LightningModule):
         super().__init__()
         self.cfg = cfg
         self._build_model()
-        self.save_hyperparameters(self.cfg)
-        self.transform = Augmentation(self.cfg)
+        self._build_criterion()
 
     def _build_model(self):
         if self.cfg.model_name not in self.supported_models:
             raise ValueError(f"{self.cfg.model_name} not supported, check your configuration")
-        self.model = self.supported_models[self.cfg.model_name]
+        self.model = self.supported_models[self.cfg.model_name](self.cfg)
     
     def _build_criterion(self):
         if self.cfg.loss not in self.supported_loss:
             raise ValueError(f"{self.cfg.loss} not supported, check your configuration")
-        self.critertion = self.supported_loss[self.cfg.loss]
+        self.criterion = self.supported_loss[self.cfg.loss]()
     
     def _build_optimizer(self):
-        if self.cfg.optimizer not in self.supported_optimizers:
+        if self.cfg.optimizer['name'] not in self.supported_optimizers:
             raise ValueError(f"{self.cfg.optimizer} not supported, check your configuration")
-        self.optimizer = self.supported_optimizers[self.cfg.optimizer]
+        self.optimizer = self.supported_optimizers[self.cfg.optimizer['name']](self.parameters(), **self.cfg.optimizer['params'])
     
     def _build_scheduler(self):
-        if self.cfg.scheduler not in self.supported_schedulers:
+        if self.cfg.scheduler['name'] not in self.supported_schedulers:
             raise ValueError(f"{self.cfg.optimizer} not supported, check your configuration")
-        self.scheduler = self.supported_schedulers[self.cfg.scheduler]
+        self.scheduler = self.supported_schedulers[self.cfg.scheduler['name']](self.optimizer,  **self.cfg.scheduler['params'])
 
     def forward(self, x):
         out = self.model(x)
@@ -75,7 +72,6 @@ class Model(LightningModule):
     def _share_step(self, batch, mode):
         images, labels = batch
         labels = labels.float() / 100.0
-        images = self.transform.get_augmentation_by_mode(mode)(images)
         
         if torch.rand(1)[0] < 0.5 and mode == 'train':
             mix_images, target_a, target_b, lam = mixup(images, labels, alpha=0.5)
@@ -117,8 +113,7 @@ class Model(LightningModule):
         
         org_images, labels = iter(dataloader).next()
         cam.batch_size = len(org_images)
-        images = self.transform.get_augmentation_by_mode('val')(org_images)
-        images = images.to(self.device)
+        images = org_images.to(self.device)
         logits = self.forward(images).squeeze(1)
         pred = logits.sigmoid().detach().cpu().numpy() * 100
         labels = labels.cpu().numpy()
@@ -128,13 +123,9 @@ class Model(LightningModule):
         return org_images, grayscale_cam, pred, labels
 
     def configure_optimizers(self):
-        optimizer = self._build_optimizer(
-            self.parameters(), **self.cfg.optimizer.params
-        )
+                
+        self._build_optimizer()
 
-        scheduler = self._build_scheduler(
-            optimizer,
-            **self.cfg.scheduler.params
-        )
+        self._build_scheduler()
 
-        return optimizer, scheduler
+        return {"optimizer": self.optimizer, "lr_scheduler": self.scheduler}
