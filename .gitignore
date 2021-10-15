@@ -130,3 +130,12 @@ dmypy.json
 
 # Data related
 data/
+
+# Models
+SwinLarge/
+SwinSmall/
+SwinTiny/
+EfficientNetV2Large/
+EfficientNetV2Medium/
+EfficientNetV2Small/
+Levit/

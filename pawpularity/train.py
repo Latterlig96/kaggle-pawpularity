@@ -14,7 +14,7 @@ from pawpularity.datasets import PawModule
 from pawpularity.models import Model
 
 
-def main():
+def train_main():
     config = Config()
     torch.autograd.set_detect_anomaly(True)
     seed_everything(config.seed)

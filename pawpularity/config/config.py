@@ -1,10 +1,10 @@
 class Config:
     seed: int = 47
-    epochs: int = 10
+    epochs: int = 100
     shuffle: bool = True
     n_splits: int = 5
     root: str = './pawpularity/data'
-    model_name: str = 'Levit'
+    model_name: str = 'SwinSmall'
     image_size: list = [224, 224]
     image_mean: list = [0.485, 0.456, 0.406]
     image_std: list = [0.229, 0.224, 0.225]
@@ -35,7 +35,7 @@ class Config:
     }
 
     train_loader: dict = {
-        'batch_size': 8,
+        'batch_size': 2,
         'shuffle': True,
         'num_workers': 8,
         'pin_memory': False,
@@ -43,7 +43,7 @@ class Config:
         }
 
     val_loader: dict = {
-        'batch_size': 8,
+        'batch_size': 2,
         'shuffle': False,
         'num_workers': 8,
         'pin_memory': False,
