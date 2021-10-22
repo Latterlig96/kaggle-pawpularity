@@ -8,7 +8,7 @@ class Levit(nn.Module):
         super().__init__()
         self.cfg = cfg
         self.backbone = timm.create_model(
-            'levit_256', pretrained=True, num_classes=0, in_chans=3
+            'levit_256', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
         self.fc = nn.Sequential(

@@ -5,6 +5,7 @@ class Config:
     n_splits: int = 5
     root: str = './pawpularity/data'
     model_name: str = 'SwinSmall'
+    use_pretrained: bool = False
     image_size: list = [224, 224]
     image_mean: list = [0.485, 0.456, 0.406]
     image_std: list = [0.229, 0.224, 0.225]
@@ -37,7 +38,7 @@ class Config:
     train_loader: dict = {
         'batch_size': 2,
         'shuffle': True,
-        'num_workers': 8,
+        'num_workers': 6,
         'pin_memory': False,
         'drop_last': True
         }
@@ -45,7 +46,7 @@ class Config:
     val_loader: dict = {
         'batch_size': 2,
         'shuffle': False,
-        'num_workers': 8,
+        'num_workers': 6,
         'pin_memory': False,
         'drop_last': False
         }

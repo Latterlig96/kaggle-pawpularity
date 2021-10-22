@@ -12,13 +12,14 @@ class PawDataset(Dataset):
         self.X = df["Id"].values
         self.transform = transform
         self.y = None if "Pawpularity" not in df.keys() else df["Pawpularity"].values
+        
 
     def __len__(self):
         return len(self.X)
     
     def __getitem__(self, idx):
         image_path = self.X[idx]
-        image = cv2.imread(image_path)
+        image = cv2.cvtColor(cv2.imread(image_path), cv2.COLOR_BGR2RGB)
         image = self.transform(image)
         if self.y is not None:
             label = self.y[idx]

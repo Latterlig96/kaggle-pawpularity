@@ -1,8 +1,8 @@
 import torch
-from pawpularity.augmentations import mixup
+import torchvision.transforms as T
 from pytorch_grad_cam import GradCAMPlusPlus
 from pytorch_lightning import LightningModule
-
+from pawpularity.augmentations import mixup
 from . import efficientnet, levit_transformer, swin_transformers
 
 
@@ -72,7 +72,7 @@ class Model(LightningModule):
     def _share_step(self, batch, mode):
         images, labels = batch
         labels = labels.float() / 100.0
-        
+
         if torch.rand(1)[0] < 0.5 and mode == 'train':
             mix_images, target_a, target_b, lam = mixup(images, labels, alpha=0.5)
             logits = self.forward(mix_images).squeeze(1)
@@ -105,10 +105,13 @@ class Model(LightningModule):
         self.log(f'{mode}_loss', metrics)
     
     def check_gradcam(self, dataloader, target_layer, target_category, reshape_transform=None):
+
+        inv_normalize = T.Normalize(mean=[-m/s for m, s in zip(self.cfg.image_mean, self.cfg.image_std)],
+                                    std= [1/s for s in self.cfg.image_std])
         cam = GradCAMPlusPlus(
             model=self,
             target_layer=target_layer, 
-            use_cuda=self.cfg.trainer.gpus, 
+            use_cuda=self.cfg.trainer['gpus'], 
             reshape_transform=reshape_transform)
         
         org_images, labels = iter(dataloader).next()
@@ -117,9 +120,10 @@ class Model(LightningModule):
         logits = self.forward(images).squeeze(1)
         pred = logits.sigmoid().detach().cpu().numpy() * 100
         labels = labels.cpu().numpy()
-        
         grayscale_cam = cam(input_tensor=images, target_category=target_category, eigen_smooth=True)
-        org_images = org_images.detach().cpu().numpy().transpose(0, 2, 3, 1) / 255.
+        org_images = inv_normalize(images)
+        org_images = org_images.detach().cpu().numpy().transpose(0, 2, 3, 1)
+
         return org_images, grayscale_cam, pred, labels
 
     def configure_optimizers(self):

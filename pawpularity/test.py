@@ -20,7 +20,6 @@ def test_main():
     root_model_dirs = os.path.join(os.getcwd(), config.model_name, 'default')
 
     model = Model(config)
-
     stored_predictions = np.zeros((len(df), config.n_splits))
 
     for index, version in enumerate(os.listdir(root_model_dirs)):
@@ -28,14 +27,13 @@ def test_main():
         model = model.eval().cuda()
         predictions = np.zeros(len(df))
         for idx, image in enumerate(df["Id"].tolist()):
-            image = cv2.imread(image)
+            image = cv2.cvtColor(cv2.imread(image), cv2.COLOR_BGR2RGB)
             image = ValAugmentation(config)(image).unsqueeze(0).to(device)
             prediction = model(image)
-            predictions[idx] = prediction
+            predictions[idx] = prediction.sigmoid().detach().cpu() * 100.
         stored_predictions[:, index] = predictions
     
     stored_predictions = np.apply_along_axis(np.mean, axis=1, arr=stored_predictions)
-    stored_predictions = np.where(stored_predictions > 0, stored_predictions, stored_predictions * -1) * 100
 
     df['Id'] = df['Id'].apply(lambda x : x.replace(config.root, '')).\
                         apply(lambda x : x.replace('/', '')).\
