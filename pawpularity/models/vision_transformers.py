@@ -1,14 +1,13 @@
 import timm
 import torch.nn as nn
 
-
-class EfficientNetV2Large(nn.Module):
+class ViTTiny(nn.Module):
 
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
         self.backbone = timm.create_model(
-            'efficientnetv2_l', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
+            'vit_tiny_patch16_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
         self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
@@ -19,13 +18,13 @@ class EfficientNetV2Large(nn.Module):
         x = self.fc(x)
         return x
 
-class EfficientNetV2Medium(nn.Module):
-    
+class ViTTinyv2(nn.Module):
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
         self.backbone = timm.create_model(
-            'efficientnetv2_m', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
+            'vit_tiny_patch16_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
         self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
@@ -36,13 +35,13 @@ class EfficientNetV2Medium(nn.Module):
         x = self.fc(x)
         return x
 
-class EfficientNetV2Small(nn.Module):
-    
+class ViTSmall(nn.Module):
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
         self.backbone = timm.create_model(
-            'efficientnetv2_s', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
+            'vit_small_patch32_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
         self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
@@ -53,13 +52,13 @@ class EfficientNetV2Small(nn.Module):
         x = self.fc(x)
         return x
 
-class EfficientNetB0(nn.Module):
-    
+class ViTSmallv2(nn.Module):
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
         self.backbone = timm.create_model(
-            'efficientnet_b0', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
+            'vit_small_patch32_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
         self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
@@ -70,13 +69,13 @@ class EfficientNetB0(nn.Module):
         x = self.fc(x)
         return x
 
-class EfficientNetB1(nn.Module):
-    
+class ViTLarge(nn.Module):
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
         self.backbone = timm.create_model(
-            'efficientnet_b1', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
+            'vit_large_patch32_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
         self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
@@ -87,13 +86,13 @@ class EfficientNetB1(nn.Module):
         x = self.fc(x)
         return x
 
-class EfficientNetB2(nn.Module):
-    
+class ViTLargev2(nn.Module):
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
         self.backbone = timm.create_model(
-            'efficientnet_b2', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
+            'vit_large_patch32_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
         self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
@@ -104,13 +103,13 @@ class EfficientNetB2(nn.Module):
         x = self.fc(x)
         return x
 
-class EfficientNetB3(nn.Module):
-    
+class ViTHybridTiny(nn.Module):
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
         self.backbone = timm.create_model(
-            'efficientnet_b1', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
+            'vit_tiny_r_s16_p8_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
         self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
@@ -121,13 +120,13 @@ class EfficientNetB3(nn.Module):
         x = self.fc(x)
         return x
 
-class EfficientNetB4(nn.Module):
-    
+class ViTHybridTinyv2(nn.Module):
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
         self.backbone = timm.create_model(
-            'efficientnet_b4', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
+            'vit_tiny_r_s16_p8_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
         self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
@@ -138,13 +137,65 @@ class EfficientNetB4(nn.Module):
         x = self.fc(x)
         return x
 
-class EfficientNetB5(nn.Module):
-    
+class ViTHybridSmall(nn.Module):
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
         self.backbone = timm.create_model(
-            'efficientnet_b5', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
+            'vit_small_r26_s32_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
+        )
+        num_features = self.backbone.num_features
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+    
+    def forward(self, x):
+        x = self.backbone(x)
+        x = self.fc(x)
+        return x
+
+class ViTHybridSmallv2(nn.Module):
+
+    def __init__(self, cfg):
+        super().__init__()
+        self.cfg = cfg
+        self.backbone = timm.create_model(
+            'vit_small_r26_s32_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
+        )
+        num_features = self.backbone.num_features
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+    
+    def forward(self, x):
+        x = self.backbone(x)
+        x = self.fc(x)
+        return x
+
+
+class ViTHybridLarge(nn.Module):
+
+    def __init__(self, cfg):
+        super().__init__()
+        self.cfg = cfg
+        self.backbone = timm.create_model(
+            'vit_large_r50_s32_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
+        )
+        num_features = self.backbone.num_features
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+    
+    def forward(self, x):
+        x = self.backbone(x)
+        x = self.fc(x)
+        return x
+
+class ViTHybridLargev2(nn.Module):
+
+    def __init__(self, cfg):
+        super().__init__()
+        self.cfg = cfg
+        self.backbone = timm.create_model(
+            'vit_large_r50_s32_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
         self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)

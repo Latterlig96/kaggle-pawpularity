@@ -3,7 +3,7 @@ import torchvision.transforms as T
 from pytorch_grad_cam import GradCAMPlusPlus
 from pytorch_lightning import LightningModule
 from pawpularity.augmentations import mixup
-from . import efficientnet, levit_transformer, swin_transformers
+from . import efficientnet, levit_transformer, swin_transformers, vision_transformers
 
 
 class Model(LightningModule):
@@ -12,10 +12,29 @@ class Model(LightningModule):
         'EfficientNetV2Large': efficientnet.__dict__['EfficientNetV2Large'],
         'EfficientNetV2Medium': efficientnet.__dict__['EfficientNetV2Medium'],
         'EfficientNetV2Small': efficientnet.__dict__['EfficientNetV2Small'],
+        'EfficientNetB0': efficientnet.__dict__['EfficientNetB0'],
+        'EfficientNetB1': efficientnet.__dict__['EfficientNetB1'],
+        'EfficientNetB2': efficientnet.__dict__['EfficientNetB2'],
+        'EfficientNetB3': efficientnet.__dict__['EfficientNetB3'],
+        'EfficientNetB4': efficientnet.__dict__['EfficientNetB4'],
+        'EfficientNetB5': efficientnet.__dict__['EfficientNetB5'],
         'Levit': levit_transformer.__dict__['Levit'],
         'SwinLarge': swin_transformers.__dict__['SwinLarge'],
+        'SwinLargev2': swin_transformers.__dict__['SwinLargev2'],
         'SwinSmall': swin_transformers.__dict__['SwinSmall'],
-        'SwinTiny': swin_transformers.__dict__['SwinTiny']
+        'SwinTiny': swin_transformers.__dict__['SwinTiny'],
+        'ViTTiny': vision_transformers.__dict__['ViTTiny'],
+        'ViTTinyv2': vision_transformers.__dict__['ViTTinyv2'],
+        'ViTSmall': vision_transformers.__dict__['ViTSmall'],
+        'ViTSmallv2': vision_transformers.__dict__['ViTSmallv2'],
+        'ViTLarge': vision_transformers.__dict__['ViTLarge'],
+        'ViTLargev2': vision_transformers.__dict__['ViTLargev2'],
+        'ViTHybridTiny': vision_transformers.__dict__['ViTHybridTiny'],
+        'ViTHybridTinyv2': vision_transformers.__dict__['ViTHybridTinyv2'],
+        'ViTHybridSmall': vision_transformers.__dict__['ViTHybridSmall'],
+        'ViTHybridSmallv2': vision_transformers.__dict__['ViTHybridSmallv2'],
+        'ViTHybridLarge': vision_transformers.__dict__['ViTHybridLarge'],
+        'ViTHybridLargev2': vision_transformers.__dict__['ViTHybridLargev2'],
     }
 
     supported_loss = {
