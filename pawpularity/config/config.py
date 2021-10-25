@@ -1,17 +1,19 @@
 class Config:
-    seed: int = 47
+    seed: int = 3407
     epochs: int = 100
     shuffle: bool = True
     n_splits: int = 5
     root: str = './pawpularity/data'
     model_name: str = 'SwinSmall'
-    use_pretrained: bool = False
+    use_pretrained: bool = True
     image_size: list = [224, 224]
     image_mean: list = [0.485, 0.456, 0.406]
     image_std: list = [0.229, 0.224, 0.225]
     output_dim: int = 1
-    use_dropout: bool = False
-    dropout_rate: float = 0.5
+    use_dropout: bool = True
+    dropout_rate: float = 0.2
+    verbose: bool = True
+    patience: int = 20
 
     trainer: dict = {
               'gpus': 1,

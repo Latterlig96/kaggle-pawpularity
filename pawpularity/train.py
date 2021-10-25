@@ -31,7 +31,7 @@ def train_main():
         val_df = df.loc[val_idx].reset_index(drop=True)
         datamodule = PawModule(train_df, val_df, Augmentation, config)
         model = Model(config)
-        earystopping = EarlyStopping(monitor="val_loss")
+        earystopping = EarlyStopping(monitor="val_loss", verbose=config.verbose, patience=config.patience)
         lr_monitor = callbacks.LearningRateMonitor()
 
         loss_checkpoint = callbacks.ModelCheckpoint(
