@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# Zip 
+*.zip
+
 # Distribution / packaging
 .Python
 build/
@@ -133,9 +136,28 @@ data/
 
 # Models
 SwinLarge/
+SwinLargev2/
 SwinSmall/
 SwinTiny/
+ViTTiny/
+ViTTinyv2/
+ViTSmall/
+ViTSmallv2/
+ViTLarge/
+ViTLargev2/
+ViTHybridTiny/
+ViTHybridTinyv2/
+ViTHybridSmall/
+ViTHybridSmallv2/
+ViTHybridLarge/
+ViTHybridLargev2/
 EfficientNetV2Large/
 EfficientNetV2Medium/
 EfficientNetV2Small/
+EfficientNetB0/
+EfficientNetB1/
+EfficientNetB2/
+EfficientNetB3/
+EfficientNetB4/
+EfficientNetB5/
 Levit/

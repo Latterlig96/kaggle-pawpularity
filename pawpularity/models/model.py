@@ -42,7 +42,8 @@ class Model(LightningModule):
     }    
 
     supported_optimizers = {
-        'Adam': torch.optim.Adam
+        'Adam': torch.optim.Adam,
+        'AdamW': torch.optim.AdamW
     }
 
     supported_schedulers = {
