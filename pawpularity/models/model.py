@@ -3,7 +3,7 @@ import torchvision.transforms as T
 from pytorch_grad_cam import GradCAMPlusPlus
 from pytorch_lightning import LightningModule
 from pawpularity.augmentations import mixup
-from . import efficientnet, levit_transformer, swin_transformers, vision_transformers
+from . import efficientnet, levit_transformer, swin_transformers, vision_transformers, learnable_resizer
 
 
 class Model(LightningModule):
@@ -145,6 +145,85 @@ class Model(LightningModule):
         org_images = org_images.detach().cpu().numpy().transpose(0, 2, 3, 1)
 
         return org_images, grayscale_cam, pred, labels
+
+    def configure_optimizers(self):
+                
+        self._build_optimizer()
+
+        self._build_scheduler()
+
+        return {"optimizer": self.optimizer, "lr_scheduler": self.scheduler}
+
+
+class ResizerModel(LightningModule):
+
+    supported_models = {
+        'Resizer': learnable_resizer.__dict__['Resizer']
+    }
+
+    supported_loss = {
+        'CrossEntropyLoss': torch.nn.CrossEntropyLoss
+    }    
+
+    supported_optimizers = {
+        'Adam': torch.optim.Adam,
+        'AdamW': torch.optim.AdamW
+    }
+
+    supported_schedulers = {
+        'CosineAnnealingWarmRestarts': torch.optim.lr_scheduler.CosineAnnealingWarmRestarts
+    }
+
+    def __init__(self,
+                cfg):
+        super().__init__()
+        self.cfg = cfg
+        self._build_model()
+        self._build_criterion()
+
+    def _build_model(self):
+        if self.cfg.model_name not in self.supported_models:
+            raise ValueError(f"{self.cfg.model_name} not supported, check your configuration")
+        self.model = self.supported_models[self.cfg.model_name](self.cfg)
+    
+    def _build_criterion(self):
+        if self.cfg.loss not in self.supported_loss:
+            raise ValueError(f"{self.cfg.loss} not supported, check your configuration")
+        self.criterion = self.supported_loss[self.cfg.loss]()
+    
+    def _build_optimizer(self):
+        if self.cfg.optimizer['name'] not in self.supported_optimizers:
+            raise ValueError(f"{self.cfg.optimizer} not supported, check your configuration")
+        self.optimizer = self.supported_optimizers[self.cfg.optimizer['name']](self.parameters(), **self.cfg.optimizer['params'])
+    
+    def _build_scheduler(self):
+        if self.cfg.scheduler['name'] not in self.supported_schedulers:
+            raise ValueError(f"{self.cfg.optimizer} not supported, check your configuration")
+        self.scheduler = self.supported_schedulers[self.cfg.scheduler['name']](self.optimizer,  **self.cfg.scheduler['params'])
+    
+    def forward(self, x):
+        out = self.model(x)
+        return out 
+    
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self.model(x)
+        loss = self.criterion(y_hat, y)
+        return loss
+    
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self.model(x)
+        acc = (y_hat.argmax(-1) == y).sum().item()
+        return acc
+    
+    def validation_epoch_end(self, validation_step_outputs):
+        acc = 0
+        for pred in validation_step_outputs:
+            acc += pred
+        acc = acc / self.val_length
+        self.log('val_acc', acc, on_step=False, on_epoch=True, prog_bar=True)
+    
 
     def configure_optimizers(self):
                 

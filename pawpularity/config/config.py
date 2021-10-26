@@ -40,7 +40,7 @@ class Config:
     }
 
     train_loader: dict = {
-        'batch_size': 2,
+        'batch_size': 8,
         'shuffle': True,
         'num_workers': 6,
         'pin_memory': False,
@@ -48,7 +48,7 @@ class Config:
         }
 
     val_loader: dict = {
-        'batch_size': 2,
+        'batch_size': 8,
         'shuffle': False,
         'num_workers': 6,
         'pin_memory': False,

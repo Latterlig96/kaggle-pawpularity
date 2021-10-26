@@ -6,12 +6,12 @@ from pytorch_lightning import callbacks
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.utilities.seed import seed_everything
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, train_test_split
 
 from pawpularity.augmentations import Augmentation
-from pawpularity.config import Config
-from pawpularity.datasets import PawModule
-from pawpularity.models import Model
+from pawpularity.config import Config, ResizerConfig
+from pawpularity.datasets import PawModule, ResizerModule
+from pawpularity.models import Model, ResizerModel
 
 
 def train_main():
@@ -52,3 +52,41 @@ def train_main():
         )
         
         trainer.fit(model, datamodule=datamodule)
+
+def resizer_train_main():
+    config = ResizerConfig()
+    torch.autograd.set_detect_anomaly(True)
+    seed_everything(config.seed)
+
+    df_path = config.root + '/' + 'train.csv'
+    img_path = config.root + '/' 'train'
+    df = pd.read_csv(df_path)
+    df["Id"] = df["Id"].apply(lambda x: img_path + '/' + x + '.jpg')
+
+    train, val = train_test_split(df, test_size=config.val_size)
+
+    train_df = train.reset_index(drop=True)
+    val_df = val.reset_index(drop=True)
+    datamodule = ResizerModule(train_df, val_df, Augmentation, config)
+    model = ResizerModel(config)
+    earystopping = EarlyStopping(monitor="val_acc", verbose=config.verbose, patience=config.patience)
+    lr_monitor = callbacks.LearningRateMonitor()
+
+    loss_checkpoint = callbacks.ModelCheckpoint(
+        filename="best_acc",
+        monitor="val_acc",
+        save_top_k=1,
+        mode="max",
+        save_last=False,
+    )
+
+    logger = TensorBoardLogger(config.model_name)
+    
+    trainer = pl.Trainer(
+        logger=logger,
+        max_epochs=config.epochs,
+        callbacks=[lr_monitor, loss_checkpoint, earystopping],
+        **config.trainer,
+    )
+    
+    trainer.fit(model, datamodule=datamodule)

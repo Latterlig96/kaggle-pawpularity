@@ -1,10 +1,58 @@
 import cv2
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
+import torch.nn.functional as F
 
+
+class ResizerDataset(Dataset):
+
+    def __init__(self, df, mode, transform, cfg):
+        self.X = df['Id'].values
+        self.transform = transform
+        self.mode = mode
+        self.cfg = cfg
+    
+    def __len__(self):
+        return len(self.X)
+    
+    def __getitem__(self, idx):
+        image_path = self.X[idx]
+        image = cv2.cvtColor(cv2.imread(image_path), cv2.COLOR_BGR2RGB)
+        image = self.transform(image)
+        if self.mode == 'train':
+            image = F.interpolate(image, size=(self.cfg.input_size[0], self.cfg.input_size[1]))
+            target = F.interpolate(image, size=(self.cfg.target_size[0], self.cfg.target_size[1]))
+            return image, target
+        return image
+
+class ResizerModule(LightningDataModule):
+
+    def __init__(self,
+                 train_df,
+                 val_df,
+                 transform,
+                 cfg):
+        super().__init__()
+        self.train_df = train_df
+        self.val_df = val_df
+        self.transform = transform(cfg)
+        self.cfg = cfg
+    
+    def _create_loader(self, train: bool = True):
+        if train:
+            return ResizerDataset(self.train_df, 'train', self.transform.get_augmentation_by_mode('resizer'), self.cfg)
+        return ResizerDataset(self.val_df, 'val', self.transform.get_augmentation_by_mode('val'), self.cfg)
+    
+    def train_dataloader(self):
+        dataset = self._create_loader(True)
+        return DataLoader(dataset, **self.cfg.train_loader)
+    
+    def val_dataloader(self):
+        dataset = self._create_loader(False)
+        return DataLoader(dataset, **self.cfg.val_loader)
 
 class PawDataset(Dataset):
-
+    
     def __init__(self,
                df,
                transform,
