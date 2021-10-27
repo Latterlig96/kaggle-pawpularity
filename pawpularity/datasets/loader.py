@@ -1,6 +1,7 @@
 import cv2
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
+from torchvision.transforms.functional import resize
 import torch.nn.functional as F
 
 
@@ -19,9 +20,9 @@ class ResizerDataset(Dataset):
         image_path = self.X[idx]
         image = cv2.cvtColor(cv2.imread(image_path), cv2.COLOR_BGR2RGB)
         image = self.transform(image)
-        if self.mode == 'train':
-            image = F.interpolate(image, size=(self.cfg.input_size[0], self.cfg.input_size[1]))
-            target = F.interpolate(image, size=(self.cfg.target_size[0], self.cfg.target_size[1]))
+        if self.mode == 'train' or self.mode == 'val':
+            image = resize(image, size=(self.cfg.input_image_size[0], self.cfg.input_image_size[1]))
+            target = resize(image, size=(self.cfg.target_size[0], self.cfg.target_size[1]))
             return image, target
         return image
 
@@ -41,7 +42,7 @@ class ResizerModule(LightningDataModule):
     def _create_loader(self, train: bool = True):
         if train:
             return ResizerDataset(self.train_df, 'train', self.transform.get_augmentation_by_mode('resizer'), self.cfg)
-        return ResizerDataset(self.val_df, 'val', self.transform.get_augmentation_by_mode('val'), self.cfg)
+        return ResizerDataset(self.val_df, 'val', self.transform.get_augmentation_by_mode('resizer-val'), self.cfg)
     
     def train_dataloader(self):
         dataset = self._create_loader(True)

@@ -1,14 +1,20 @@
 class ResizerConfig:
-    data: str = None
-    input_image_size: int = None
-    target_size: int = None
-    epochs: int = None
+    seed: int = 3407
+    epochs: int = 100
+    shuffle: bool = True
+    root: str = './pawpularity/data'
+    input_image_size: int = [768, 768]
+    target_size: int = [384, 384]
+    epochs: int = 100
+    model_name: str = 'Resizer'
     image_mean: list = [0.485, 0.456, 0.406]
     image_std: list = [0.229, 0.224, 0.225]
+    verbose: bool = True
+    patience: int = 20
     val_size: float = 0.2
 
     train_loader: dict = {
-        'batch_size': 8,
+        'batch_size': 4,
         'shuffle': True,
         'num_workers': 6,
         'pin_memory': False,
@@ -16,7 +22,7 @@ class ResizerConfig:
         }
 
     val_loader: dict = {
-        'batch_size': 8,
+        'batch_size': 4,
         'shuffle': False,
         'num_workers': 6,
         'pin_memory': False,
@@ -56,4 +62,4 @@ class ResizerConfig:
               }
         }
 
-    loss: str = 'CrossEntropyLoss'
+    loss: str = 'MSE'

@@ -44,6 +44,17 @@ class ResizerAugmentation:
         transform = self.augmentation(image=x)
         return transform['image']
 
+class ResizerValAugmentation:
+
+    def __init__(self, config):
+        self.augmentation = A.Compose([A.Resize(height=config.input_image_size[0], width=config.input_image_size[1]),
+                                       A.Normalize(config.image_mean, config.image_std),
+                                       ToTensorV2()])
+    
+    def __call__(self, x: np.ndarray):
+        transform = self.augmentation(image=x)
+        return transform['image']
+
 class Augmentation:
 
     def __init__(self, config):
@@ -54,4 +65,6 @@ class Augmentation:
             return TrainAugmentation(self.config)
         elif mode == 'resizer':
             return ResizerAugmentation(self.config)
+        elif mode == 'resizer-val':
+            return ResizerValAugmentation(self.config)
         return ValAugmentation(self.config)

@@ -162,7 +162,8 @@ class ResizerModel(LightningModule):
     }
 
     supported_loss = {
-        'CrossEntropyLoss': torch.nn.CrossEntropyLoss
+        'CrossEntropyLoss': torch.nn.CrossEntropyLoss,
+        'MSE': torch.nn.MSELoss
     }    
 
     supported_optimizers = {
@@ -206,25 +207,39 @@ class ResizerModel(LightningModule):
         return out 
     
     def training_step(self, batch, batch_idx):
+        loss, pred, labels = self._share_step(batch, 'train')
+        return {'loss': loss, 'pred': pred, 'labels': labels}
+    
+    def validation_step(self, batch, batch_idx):
+        loss, pred, labels = self._share_step(batch, 'val')
+        return {'loss': loss, 'pred': pred, 'labels': labels}
+    
+    def _share_step(self, batch, mode):
         x, y = batch
         y_hat = self.model(x)
         loss = self.criterion(y_hat, y)
-        return loss
+        y_hat = y_hat.detach().cpu()
+        y = y.detach().cpu()
+        return loss, y_hat, y
     
-    def validation_step(self, batch, batch_idx):
-        x, y = batch
-        y_hat = self.model(x)
-        acc = (y_hat.argmax(-1) == y).sum().item()
-        return acc
-    
-    def validation_epoch_end(self, validation_step_outputs):
-        acc = 0
-        for pred in validation_step_outputs:
-            acc += pred
-        acc = acc / self.val_length
-        self.log('val_acc', acc, on_step=False, on_epoch=True, prog_bar=True)
-    
+    def _share_epoch_end(self, outputs, mode):
+        preds = []
+        labels = []
+        for out in outputs:
+            pred, label = out['pred'], out['labels']
+            preds.append(pred)
+            labels.append(label)
+        preds = torch.cat(preds)
+        labels = torch.cat(labels)
+        metrics = ((labels - preds) ** 2).mean()
+        self.log(f'{mode}_loss', metrics)
 
+    def training_epoch_end(self, training_step_outputs):
+        self._share_epoch_end(training_step_outputs, 'train')
+
+    def validation_epoch_end(self, validation_step_outputs):
+        self._share_epoch_end(validation_step_outputs, 'val')
+    
     def configure_optimizers(self):
                 
         self._build_optimizer()
