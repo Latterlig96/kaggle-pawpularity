@@ -22,7 +22,7 @@ def show_training_results():
 
     plt.figure(figsize=(16, 6))
     plt.subplot(1, 2, 1)
-    plt.plot(range(len(scalars['lr-Adam'])), scalars['lr-Adam'])
+    plt.plot(range(len(scalars['lr-AdamW'])), scalars['lr-AdamW'])
     plt.xlabel('epoch')
     plt.ylabel('lr')
     plt.title('Adam lr')

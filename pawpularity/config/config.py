@@ -1,19 +1,19 @@
 class Config:
     seed: int = 3407
-    epochs: int = 100
+    epochs: int = 5
     shuffle: bool = True
     n_splits: int = 5
     root: str = './pawpularity/data'
-    model_name: str = 'SwinSmall'
+    model_name: str = 'ViTHybridSmallv2'
     use_pretrained: bool = True
-    image_size: list = [224, 224]
+    image_size: list = [768, 768]
     image_mean: list = [0.485, 0.456, 0.406]
     image_std: list = [0.229, 0.224, 0.225]
     output_dim: int = 1
     use_dropout: bool = True
     dropout_rate: float = 0.2
     verbose: bool = True
-    patience: int = 20
+    patience: int = 3
 
     trainer: dict = {
               'gpus': 1,
@@ -23,6 +23,22 @@ class Config:
               'num_sanity_val_steps': 0,
               'resume_from_checkpoint': None,
         }
+    
+    resizer: dict = {
+        'apply': True,
+        'in_channels': 3,
+        'out_channels': 3,
+        'num_kernels': 16,
+        'num_resblocks': 2,
+        'negative_slope': 0.2,
+        'interpolation_mode': 'bilinear',
+        'target_size': [384, 384]
+    }
+
+    stn: dict = {
+        'apply': True,
+        'apply_after_resizer': False
+    }
     
     augmentation: dict = {
         'color_jitter': {
@@ -40,7 +56,7 @@ class Config:
     }
 
     train_loader: dict = {
-        'batch_size': 8,
+        'batch_size': 2,
         'shuffle': True,
         'num_workers': 6,
         'pin_memory': False,
@@ -48,7 +64,7 @@ class Config:
         }
 
     val_loader: dict = {
-        'batch_size': 8,
+        'batch_size': 2,
         'shuffle': False,
         'num_workers': 6,
         'pin_memory': False,
@@ -56,7 +72,7 @@ class Config:
         }
 
     optimizer: dict = {
-        'name': "Adam",
+        'name': "AdamW",
         'params': {
             'lr': 1e-5
         }

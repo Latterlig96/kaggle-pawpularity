@@ -4,7 +4,6 @@ class ResizerConfig:
     shuffle: bool = True
     root: str = './pawpularity/data'
     input_image_size: int = [768, 768]
-    target_size: int = [384, 384]
     epochs: int = 100
     model_name: str = 'Resizer'
     image_mean: list = [0.485, 0.456, 0.406]
@@ -35,7 +34,8 @@ class ResizerConfig:
         'num_kernels': 16,
         'num_resblocks': 2,
         'negative_slope': 0.2,
-        'interpolation_mode': 'bilinear'
+        'interpolation_mode': 'bilinear',
+        'target_size': [384, 384]
     }
 
     trainer: dict = {

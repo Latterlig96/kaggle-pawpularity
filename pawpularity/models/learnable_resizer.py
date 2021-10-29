@@ -26,7 +26,8 @@ class Resizer(nn.Module):
     def __init__(self, cfg):
         super().__init__()
         self.interpolate_mode = cfg.resizer['interpolation_mode']
-        self.scale_factor = cfg.target_size[0] / cfg.input_image_size[0]
+
+        self.scale_factor = cfg.resizer['target_size'][0] / cfg.image_size[1]
 
         n = cfg.resizer['num_kernels']
         r = cfg.resizer['num_resblocks']
@@ -60,7 +61,6 @@ class Resizer(nn.Module):
                                    align_corners=False,
                                    recompute_scale_factor=False)
     
-
     def forward(self, x):
 
         residual = self.interpolate(x)
