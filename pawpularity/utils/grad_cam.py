@@ -12,23 +12,28 @@ __all__ = ('show_cam', )
 
 Tensor = TypeVar("Tensor")
 
+
 def _reshape_transform(tensor: Tensor, height: int = 7, width: int = 7):
     result = tensor.reshape(tensor.size(0),
-                            height, width, 
+                            height, width,
                             tensor.size(2))
     result = result.permute(0, 3, 1, 2)
-    return result 
+    return result
+
 
 def _yield_indices(df, config):
-    skf = StratifiedKFold(n_splits=config.n_splits, shuffle=config.shuffle, random_state=config.seed)
+    skf = StratifiedKFold(n_splits=config.n_splits,
+                          shuffle=config.shuffle, random_state=config.seed)
     for fold, (train_idx, val_idx) in enumerate(skf.split(df["Id"], df["Pawpularity"])):
         yield train_idx, val_idx
+
 
 def show_cam():
     config = Config()
 
     model = Model(config)
-    model.load_from_checkpoint(f'{config.model_name}/default/version_0/checkpoints/best_loss.ckpt', cfg=config)
+    model.load_from_checkpoint(
+        f'{config.model_name}/default/version_0/checkpoints/best_loss.ckpt', cfg=config)
     model = model.eval().cuda()
 
     df_path = config.root + '/' + 'train.csv'
@@ -47,7 +52,7 @@ def show_cam():
         target_layer=model.model.backbone.layers[-1].blocks[-1].norm1,
         target_category=None,
         reshape_transform=_reshape_transform)
-    
+
     plt.figure(figsize=(12, 12))
     for it, (image, grayscale_cam, pred, label) in enumerate(zip(images, grayscale_cams, preds, labels)):
         plt.subplot(4, 4, it + 1)

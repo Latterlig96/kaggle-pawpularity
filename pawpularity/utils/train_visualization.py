@@ -6,6 +6,7 @@ import seaborn as sns
 
 __all__ = ('show_training_results', )
 
+
 def show_training_results():
     config = Config()
 
@@ -28,8 +29,10 @@ def show_training_results():
     plt.title('Adam lr')
 
     plt.subplot(1, 2, 2)
-    plt.plot(range(len(scalars['train_loss'])), scalars['train_loss'], label='train_loss')
-    plt.plot(range(len(scalars['val_loss'])), scalars['val_loss'], label='val_loss')
+    plt.plot(range(len(scalars['train_loss'])),
+             scalars['train_loss'], label='train_loss')
+    plt.plot(range(len(scalars['val_loss'])),
+             scalars['val_loss'], label='val_loss')
     plt.legend()
     plt.ylabel('rmse')
     plt.xlabel('epoch')

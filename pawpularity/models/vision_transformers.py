@@ -12,8 +12,10 @@ class ViTTiny(nn.Module):
             'vit_tiny_patch16_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -22,14 +24,14 @@ class ViTTiny(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)     
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -40,6 +42,7 @@ class ViTTiny(nn.Module):
         x = self.backbone(x)
         x = self.fc(x)
         return x
+
 
 class ViTTinyv2(nn.Module):
 
@@ -50,8 +53,10 @@ class ViTTinyv2(nn.Module):
             'vit_tiny_patch16_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -60,14 +65,14 @@ class ViTTinyv2(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)     
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -78,6 +83,7 @@ class ViTTinyv2(nn.Module):
         x = self.backbone(x)
         x = self.fc(x)
         return x
+
 
 class ViTSmall(nn.Module):
 
@@ -88,8 +94,10 @@ class ViTSmall(nn.Module):
             'vit_small_patch32_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -98,14 +106,14 @@ class ViTSmall(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)     
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -116,6 +124,7 @@ class ViTSmall(nn.Module):
         x = self.backbone(x)
         x = self.fc(x)
         return x
+
 
 class ViTSmallv2(nn.Module):
 
@@ -126,8 +135,10 @@ class ViTSmallv2(nn.Module):
             'vit_small_patch32_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -136,14 +147,14 @@ class ViTSmallv2(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)     
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -154,6 +165,7 @@ class ViTSmallv2(nn.Module):
         x = self.backbone(x)
         x = self.fc(x)
         return x
+
 
 class ViTLarge(nn.Module):
 
@@ -164,8 +176,10 @@ class ViTLarge(nn.Module):
             'vit_large_patch32_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -174,14 +188,14 @@ class ViTLarge(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)     
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -192,6 +206,7 @@ class ViTLarge(nn.Module):
         x = self.backbone(x)
         x = self.fc(x)
         return x
+
 
 class ViTLargev2(nn.Module):
 
@@ -202,8 +217,10 @@ class ViTLargev2(nn.Module):
             'vit_large_patch32_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -212,13 +229,13 @@ class ViTLargev2(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)     
+            self.stn2 = StnSmall(self.cfg)
 
     def forward(self, x):
         if self.apply_stn:
@@ -230,6 +247,7 @@ class ViTLargev2(nn.Module):
         x = self.backbone(x)
         x = self.fc(x)
         return x
+
 
 class ViTHybridTiny(nn.Module):
 
@@ -240,8 +258,10 @@ class ViTHybridTiny(nn.Module):
             'vit_tiny_r_s16_p8_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -250,14 +270,14 @@ class ViTHybridTiny(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)     
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -268,6 +288,7 @@ class ViTHybridTiny(nn.Module):
         x = self.backbone(x)
         x = self.fc(x)
         return x
+
 
 class ViTHybridTinyv2(nn.Module):
 
@@ -278,8 +299,10 @@ class ViTHybridTinyv2(nn.Module):
             'vit_tiny_r_s16_p8_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -288,14 +311,14 @@ class ViTHybridTinyv2(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)     
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -306,6 +329,7 @@ class ViTHybridTinyv2(nn.Module):
         x = self.backbone(x)
         x = self.fc(x)
         return x
+
 
 class ViTHybridSmall(nn.Module):
 
@@ -316,8 +340,10 @@ class ViTHybridSmall(nn.Module):
             'vit_small_r26_s32_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -326,14 +352,14 @@ class ViTHybridSmall(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)     
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -345,6 +371,7 @@ class ViTHybridSmall(nn.Module):
         x = self.fc(x)
         return x
 
+
 class ViTHybridSmallv2(nn.Module):
 
     def __init__(self, cfg):
@@ -354,8 +381,10 @@ class ViTHybridSmallv2(nn.Module):
             'vit_small_r26_s32_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -370,8 +399,8 @@ class ViTHybridSmallv2(nn.Module):
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)     
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -393,8 +422,10 @@ class ViTHybridLarge(nn.Module):
             'vit_large_r50_s32_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -403,14 +434,14 @@ class ViTHybridLarge(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)     
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -422,6 +453,7 @@ class ViTHybridLarge(nn.Module):
         x = self.fc(x)
         return x
 
+
 class ViTHybridLargev2(nn.Module):
 
     def __init__(self, cfg):
@@ -431,8 +463,10 @@ class ViTHybridLargev2(nn.Module):
             'vit_large_r50_s32_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -441,13 +475,13 @@ class ViTHybridLargev2(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)        
+            self.stn2 = StnSmall(self.cfg)
 
     def forward(self, x):
         if self.apply_stn:

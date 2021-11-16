@@ -11,8 +11,10 @@ class SwinLarge(nn.Module):
             'swin_large_patch4_window7_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -21,13 +23,13 @@ class SwinLarge(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)  
+            self.stn2 = StnSmall(self.cfg)
 
     def forward(self, x):
         if self.apply_stn:
@@ -39,6 +41,7 @@ class SwinLarge(nn.Module):
         x = self.backbone(x)
         x = self.fc(x)
         return x
+
 
 class SwinLargev2(nn.Module):
 
@@ -49,8 +52,10 @@ class SwinLargev2(nn.Module):
             'swin_large_patch4_window12_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -59,14 +64,14 @@ class SwinLargev2(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)   
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -77,6 +82,7 @@ class SwinLargev2(nn.Module):
         x = self.backbone(x)
         x = self.fc(x)
         return x
+
 
 class SwinSmall(nn.Module):
 
@@ -87,8 +93,10 @@ class SwinSmall(nn.Module):
             'swin_small_patch4_window7_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -97,13 +105,13 @@ class SwinSmall(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)   
+            self.stn2 = StnSmall(self.cfg)
 
     def forward(self, x):
         if self.apply_stn:
@@ -116,6 +124,7 @@ class SwinSmall(nn.Module):
         x = self.fc(x)
         return x
 
+
 class SwinTiny(nn.Module):
 
     def __init__(self, cfg):
@@ -125,8 +134,10 @@ class SwinTiny(nn.Module):
             'swin_tiny_patch4_window7_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -135,14 +146,14 @@ class SwinTiny(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)   
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)

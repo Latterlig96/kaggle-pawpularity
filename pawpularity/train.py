@@ -24,14 +24,16 @@ def train_main():
     df = pd.read_csv(df_path)
     df["Id"] = df["Id"].apply(lambda x: img_path + '/' + x + '.jpg')
 
-    skf = StratifiedKFold(n_splits=config.n_splits, shuffle=config.shuffle, random_state=config.seed)
+    skf = StratifiedKFold(n_splits=config.n_splits,
+                          shuffle=config.shuffle, random_state=config.seed)
 
     for fold, (train_idx, val_idx) in enumerate(skf.split(df["Id"], df["Pawpularity"])):
         train_df = df.loc[train_idx].reset_index(drop=True)
         val_df = df.loc[val_idx].reset_index(drop=True)
         datamodule = PawModule(train_df, val_df, Augmentation, config)
         model = Model(config)
-        earystopping = EarlyStopping(monitor="val_loss", verbose=config.verbose, patience=config.patience)
+        earystopping = EarlyStopping(
+            monitor="val_loss", verbose=config.verbose, patience=config.patience)
         lr_monitor = callbacks.LearningRateMonitor()
 
         loss_checkpoint = callbacks.ModelCheckpoint(
@@ -43,15 +45,16 @@ def train_main():
         )
 
         logger = TensorBoardLogger(config.model_name)
-        
+
         trainer = pl.Trainer(
             logger=logger,
             max_epochs=config.epochs,
             callbacks=[lr_monitor, loss_checkpoint, earystopping],
             **config.trainer,
         )
-        
+
         trainer.fit(model, datamodule=datamodule)
+
 
 def resizer_train_main():
     config = ResizerConfig()
@@ -69,7 +72,8 @@ def resizer_train_main():
     val_df = val.reset_index(drop=True)
     datamodule = ResizerModule(train_df, val_df, Augmentation, config)
     model = ResizerModel(config)
-    earystopping = EarlyStopping(monitor="val_acc", verbose=config.verbose, patience=config.patience)
+    earystopping = EarlyStopping(
+        monitor="val_acc", verbose=config.verbose, patience=config.patience)
     lr_monitor = callbacks.LearningRateMonitor()
 
     loss_checkpoint = callbacks.ModelCheckpoint(
@@ -81,12 +85,12 @@ def resizer_train_main():
     )
 
     logger = TensorBoardLogger(config.model_name)
-    
+
     trainer = pl.Trainer(
         logger=logger,
         max_epochs=config.epochs,
         callbacks=[lr_monitor, loss_checkpoint, earystopping],
         **config.trainer,
     )
-    
+
     trainer.fit(model, datamodule=datamodule)

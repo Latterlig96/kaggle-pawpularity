@@ -12,5 +12,5 @@ def mixup(x: torch.Tensor, y: torch.Tensor, alpha: float = 1.0):
     rand_index = torch.randperm(x.size()[0])
     mixed_x = lam * x + (1 - lam) * x[rand_index, :]
     target_a, target_b = y, y[rand_index]
-    
+
     return mixed_x, target_a, target_b, lam

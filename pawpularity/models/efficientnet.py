@@ -11,8 +11,10 @@ class EfficientNetV2Large(nn.Module):
             'efficientnetv2_l', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -21,14 +23,14 @@ class EfficientNetV2Large(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)    
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -40,8 +42,9 @@ class EfficientNetV2Large(nn.Module):
         x = self.fc(x)
         return x
 
+
 class EfficientNetV2Medium(nn.Module):
-    
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
@@ -49,8 +52,10 @@ class EfficientNetV2Medium(nn.Module):
             'efficientnetv2_m', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -59,14 +64,14 @@ class EfficientNetV2Medium(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)    
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -78,8 +83,9 @@ class EfficientNetV2Medium(nn.Module):
         x = self.fc(x)
         return x
 
+
 class EfficientNetV2Small(nn.Module):
-    
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
@@ -87,8 +93,10 @@ class EfficientNetV2Small(nn.Module):
             'efficientnetv2_s', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -97,14 +105,14 @@ class EfficientNetV2Small(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)    
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -116,8 +124,9 @@ class EfficientNetV2Small(nn.Module):
         x = self.fc(x)
         return x
 
+
 class EfficientNetB0(nn.Module):
-    
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
@@ -125,8 +134,10 @@ class EfficientNetB0(nn.Module):
             'efficientnet_b0', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -135,14 +146,14 @@ class EfficientNetB0(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)    
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -154,8 +165,9 @@ class EfficientNetB0(nn.Module):
         x = self.fc(x)
         return x
 
+
 class EfficientNetB1(nn.Module):
-    
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
@@ -163,8 +175,10 @@ class EfficientNetB1(nn.Module):
             'efficientnet_b1', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -173,14 +187,14 @@ class EfficientNetB1(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)    
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -192,8 +206,9 @@ class EfficientNetB1(nn.Module):
         x = self.fc(x)
         return x
 
+
 class EfficientNetB2(nn.Module):
-    
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
@@ -201,8 +216,10 @@ class EfficientNetB2(nn.Module):
             'efficientnet_b2', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -211,13 +228,13 @@ class EfficientNetB2(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)    
+            self.stn2 = StnSmall(self.cfg)
 
     def forward(self, x):
         if self.apply_stn:
@@ -230,8 +247,9 @@ class EfficientNetB2(nn.Module):
         x = self.fc(x)
         return x
 
+
 class EfficientNetB3(nn.Module):
-    
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
@@ -239,8 +257,10 @@ class EfficientNetB3(nn.Module):
             'efficientnet_b1', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -249,14 +269,14 @@ class EfficientNetB3(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)    
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -268,8 +288,9 @@ class EfficientNetB3(nn.Module):
         x = self.fc(x)
         return x
 
+
 class EfficientNetB4(nn.Module):
-    
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
@@ -277,8 +298,10 @@ class EfficientNetB4(nn.Module):
             'efficientnet_b4', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -287,14 +310,14 @@ class EfficientNetB4(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)    
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
@@ -306,8 +329,9 @@ class EfficientNetB4(nn.Module):
         x = self.fc(x)
         return x
 
+
 class EfficientNetB5(nn.Module):
-    
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
@@ -315,8 +339,10 @@ class EfficientNetB5(nn.Module):
             'efficientnet_b5', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
-        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(self.cfg.dropout_rate)
-        self.fc = nn.Sequential(self.dropout, nn.Linear(num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
+        self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
+            self.cfg.dropout_rate)
+        self.fc = nn.Sequential(self.dropout, nn.Linear(
+            num_features, self.cfg.output_dim)) if self.dropout else nn.Linear(num_features, self.cfg.output_dim)
 
         self.apply_resizer = self.cfg.resizer['apply']
         self.apply_stn = self.cfg.stn['apply']
@@ -325,14 +351,14 @@ class EfficientNetB5(nn.Module):
         if self.apply_resizer:
             from .learnable_resizer import Resizer
             self.resizer = Resizer(self.cfg)
-        
+
         if self.apply_stn:
             from .stn import StnLarge
             self.stn1 = StnLarge(self.cfg)
         if self.apply_after_resizer:
             from .stn import StnSmall
-            self.stn2 = StnSmall(self.cfg)   
-    
+            self.stn2 = StnSmall(self.cfg)
+
     def forward(self, x):
         if self.apply_stn:
             x = self.stn1(x)
