@@ -7,8 +7,10 @@ class Config:
     seed: int = 3407
     epochs: int = 5
     shuffle: bool = True
-    n_splits: int = 5
-    root: str = './pawpularity/data'
+    n_splits: int = 10
+    root_df: str = './pawpularity/data/pawpularity_data_10_folds_47_seed.csv'
+    root_img: str = './pawpularity/data/train'
+    root_submission: str = './pawpularity/data/sample_submission.csv'
     model_name: str = 'ViTHybridSmallv2'
     use_pretrained: bool = True
     image_size: typing.Tuple[int] = (768, 768)

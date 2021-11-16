@@ -6,7 +6,6 @@ from pytorch_lightning import callbacks
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.utilities.seed import seed_everything
-from sklearn.model_selection import StratifiedKFold, train_test_split
 
 from pawpularity.augmentations import Augmentation
 from pawpularity.config import Config, ResizerConfig
@@ -19,17 +18,16 @@ def train_main():
     torch.autograd.set_detect_anomaly(True)
     seed_everything(config.seed)
 
-    df_path = config.root + '/' + 'train.csv'
-    img_path = config.root + '/' 'train'
+    df_path = config.root_df
+    img_path = config.root_img
     df = pd.read_csv(df_path)
     df["Id"] = df["Id"].apply(lambda x: img_path + '/' + x + '.jpg')
 
-    skf = StratifiedKFold(n_splits=config.n_splits,
-                          shuffle=config.shuffle, random_state=config.seed)
+    folds = config.n_splits
 
-    for fold, (train_idx, val_idx) in enumerate(skf.split(df["Id"], df["Pawpularity"])):
-        train_df = df.loc[train_idx].reset_index(drop=True)
-        val_df = df.loc[val_idx].reset_index(drop=True)
+    for fold in range(folds):
+        train_df = df.loc[df["fold"] != fold].reset_index(drop=True)
+        val_df = df.loc[df["fold"] == fold].reset_index(drop=True)
         datamodule = PawModule(train_df, val_df, Augmentation, config)
         model = Model(config)
         earystopping = EarlyStopping(
@@ -61,36 +59,37 @@ def resizer_train_main():
     torch.autograd.set_detect_anomaly(True)
     seed_everything(config.seed)
 
-    df_path = config.root + '/' + 'train.csv'
-    img_path = config.root + '/' 'train'
+    df_path = config.root_df
+    img_path = config.root_img
     df = pd.read_csv(df_path)
     df["Id"] = df["Id"].apply(lambda x: img_path + '/' + x + '.jpg')
 
-    train, val = train_test_split(df, test_size=config.val_size)
+    folds = config.n_splits
 
-    train_df = train.reset_index(drop=True)
-    val_df = val.reset_index(drop=True)
-    datamodule = ResizerModule(train_df, val_df, Augmentation, config)
-    model = ResizerModel(config)
-    earystopping = EarlyStopping(
-        monitor="val_acc", verbose=config.verbose, patience=config.patience)
-    lr_monitor = callbacks.LearningRateMonitor()
+    for fold in range(folds):
+        train_df = df.loc[df["fold"] != fold].reset_index(drop=True)
+        val_df = df.loc[df["fold"] == fold].reset_index(drop=True)
+        datamodule = ResizerModule(train_df, val_df, Augmentation, config)
+        model = ResizerModel(config)
+        earystopping = EarlyStopping(
+            monitor="val_acc", verbose=config.verbose, patience=config.patience)
+        lr_monitor = callbacks.LearningRateMonitor()
 
-    loss_checkpoint = callbacks.ModelCheckpoint(
-        filename="best_acc",
-        monitor="val_acc",
-        save_top_k=1,
-        mode="max",
-        save_last=False,
-    )
+        loss_checkpoint = callbacks.ModelCheckpoint(
+            filename="best_acc",
+            monitor="val_acc",
+            save_top_k=1,
+            mode="max",
+            save_last=False,
+        )
 
-    logger = TensorBoardLogger(config.model_name)
+        logger = TensorBoardLogger(config.model_name)
 
-    trainer = pl.Trainer(
-        logger=logger,
-        max_epochs=config.epochs,
-        callbacks=[lr_monitor, loss_checkpoint, earystopping],
-        **config.trainer,
-    )
+        trainer = pl.Trainer(
+            logger=logger,
+            max_epochs=config.epochs,
+            callbacks=[lr_monitor, loss_checkpoint, earystopping],
+            **config.trainer,
+        )
 
-    trainer.fit(model, datamodule=datamodule)
+        trainer.fit(model, datamodule=datamodule)

@@ -11,9 +11,9 @@ import os
 @torch.no_grad()
 def test_main():
     config = Config()
-    df_path = config.root + '/' + 'test.csv'
-    img_path = config.root + '/' + 'test'
-    submission_path = config.root + '/' + 'sample_submission.csv'
+    df_path = config.root_df
+    img_path = config.root_img
+    submission_path = config.root_submission
     df = pd.read_csv(df_path)
     df["Id"] = df["Id"].apply(lambda x: img_path + '/' + x + '.jpg')
     device = 'cuda' if torch.cuda.is_available() else 'cpu'

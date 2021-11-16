@@ -6,7 +6,9 @@ class ResizerConfig:
     seed: int = 3407
     epochs: int = 100
     shuffle: bool = True
-    root: str = './pawpularity/data'
+    root_df: str = './pawpularity/data/'
+    root_img: str = './pawpularity/data/train'
+    root_submission: str = './pawpularity/data/sample_submission.csv'
     input_image_size: typing.Tuple[int] = (768, 768)
     epochs: int = 100
     model_name: str = 'Resizer'
