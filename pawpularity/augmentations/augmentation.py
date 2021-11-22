@@ -38,6 +38,21 @@ class ValAugmentation:
         transform = self.augmentation(image=x)
         return transform['image']
 
+class TTAAugmentation:
+
+    def __init__(self,
+                 config):
+        self.augmentation = A.Compose([A.Resize(height=config.image_size[0], width=config.image_size[1]),
+                                       A.HorizontalFlip(),
+                                       A.VerticalFlip(),
+                                       A.CoarseDropout(),
+                                       A.Normalize(config.image_mean,
+                                                   config.image_std),
+                                       ToTensorV2()])
+
+    def __call__(self, x: np.ndarray):
+        transform = self.augmentation(image=x)
+        return transform['image']
 
 class ResizerAugmentation:
 
@@ -73,6 +88,8 @@ class Augmentation:
     def get_augmentation_by_mode(self, mode):
         if mode == 'train':
             return TrainAugmentation(self.config)
+        elif mode == 'tta':
+            return TTAAugmentation(self.config)
         elif mode == 'resizer':
             return ResizerAugmentation(self.config)
         elif mode == 'resizer-val':

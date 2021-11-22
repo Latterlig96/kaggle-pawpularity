@@ -96,6 +96,11 @@ class Model(LightningModule):
         loss, pred, labels = self._share_step(batch, 'val')
         return {'loss': loss, 'pred': pred, 'labels': labels}
 
+    def predict_step(self, batch, batch_idx, dataloader_idx=0):
+        images, _ = batch
+        logits = self.forward(images).sigmoid()
+        return logits
+    
     def _share_step(self, batch, mode):
         images, labels = batch
         labels = labels.float() / 100.0

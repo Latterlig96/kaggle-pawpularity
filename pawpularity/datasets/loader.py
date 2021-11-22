@@ -78,7 +78,12 @@ class PawDataset(Dataset):
             label = self.y[idx]
             return image, label
         return image
-
+    
+    @classmethod
+    def as_dataloader(cls, df, transform, cfg, **kwargs):
+        _cls = cls(df, transform , cfg)
+        return DataLoader(_cls, **kwargs)
+    
 
 class PawModule(LightningDataModule):
 

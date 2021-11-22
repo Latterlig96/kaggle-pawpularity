@@ -1,4 +1,8 @@
 
+import os
+import pickle
+
+import numpy as np
 import pandas as pd
 import pytorch_lightning as pl
 import torch
@@ -8,8 +12,8 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.utilities.seed import seed_everything
 
 from pawpularity.augmentations import Augmentation
-from pawpularity.config import Config, ResizerConfig
-from pawpularity.datasets import PawModule, ResizerModule
+from pawpularity.config import Config, EnsembleConfig, ResizerConfig
+from pawpularity.datasets import PawDataset, PawModule, ResizerModule
 from pawpularity.models import Model, ResizerModel
 
 
@@ -93,3 +97,68 @@ def resizer_train_main():
         )
 
         trainer.fit(model, datamodule=datamodule)
+
+
+def ensemble_train_main():
+    import cuml
+
+    ensemble_config = EnsembleConfig()
+    df_path = ensemble_config.root_df
+    img_path = ensemble_config.root_img
+    df = pd.read_csv(df_path)
+    df["Id"] = df["Id"].apply(lambda x: img_path + '/' + x + '.jpg')
+
+    folds = ensemble_config.n_splits
+
+    for fold in range(folds):
+        print(f"Training fold {fold}")
+
+        train_df = df.loc[df["fold"] != fold].reset_index(drop=True)
+        val_df = df.loc[df["fold"] == fold].reset_index(drop=True)
+        
+        embeds = np.zeros((len(train_df), len(ensemble_config.first_level_models)))
+
+        datamodule = PawDataset.as_dataloader(train_df,
+                                                  Augmentation.get_augmentation_by_mode('train'),
+                                                  ensemble_config,
+                                                  **ensemble_config.data_loader)
+                                                  
+        for idx, name in enumerate(ensemble_config.first_level_models):
+            config = Config.load_config_class(os.path.join(name, 'hyparams.yaml'))
+            model = Model(config).load_from_checkpoint(os.path.join(name, fold, 'checkpoints', 'best_loss.ckpt'))
+
+            trainer = pl.Trainer()
+
+            train_predictions = trainer.predict(model, datamodule, return_predictions=True)
+
+            embeds[:, idx] = train_predictions
+
+        clf = cuml.SVR(C=20.0)
+
+        clf.fit(embeds.astype('float32'), train_df['Pawpularity'].values.astype('int32'))
+
+        pickle.dump(clf, open(f'SVR_FOLD_{idx}.pkl'))
+
+        datamodule = PawDataset.as_dataloader(val_df,
+                                              Augmentation.get_augmentation_by_mode('tta'),
+                                              ensemble_config,
+                                              **ensemble_config.data_loader)
+        
+        val_embeds = np.zeros((len(val_df), len(ensemble_config.first_level_models)))
+
+        for idx, name in enumerate(ensemble_config.first_level_models):
+
+            tta_preds = np.zeros((len(val_df), ensemble_config.tta_steps))
+            config = Config.load_config_class(os.path.join(name, 'hyparams.yaml'))
+            model = Model(config).load_from_checkpoint(os.path.join(name, fold, 'checkpoints', 'best_loss.ckpt'))
+
+            for idx in range(ensemble_config.tta_steps):
+                trainer = pl.Trainer()
+
+                train_predictions = trainer.predict(model, datamodule, return_predictions=True)
+
+                tta_preds[:, idx] = train_predictions
+
+            val_embeds[:, idx] = np.apply_along_axis(np.mean, axis=1, arr=tta_preds)
+
+        #TODO
