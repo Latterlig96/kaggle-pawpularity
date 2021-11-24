@@ -101,6 +101,7 @@ def resizer_train_main():
 
 def ensemble_train_main():
     import cuml
+    import scipy.optimize as optimize
 
     ensemble_config = EnsembleConfig()
     df_path = ensemble_config.root_df
@@ -118,10 +119,10 @@ def ensemble_train_main():
         
         embeds = np.zeros((len(train_df), len(ensemble_config.first_level_models)))
 
-        datamodule = PawDataset.as_dataloader(train_df,
-                                                  Augmentation.get_augmentation_by_mode('train'),
-                                                  ensemble_config,
-                                                  **ensemble_config.data_loader)
+        dataloader = PawDataset.as_dataloader(train_df,
+                                                Augmentation.get_augmentation_by_mode('train'),
+                                                ensemble_config,
+                                                **ensemble_config.data_loader)
                                                   
         for idx, name in enumerate(ensemble_config.first_level_models):
             config = Config.load_config_class(os.path.join(name, 'hyparams.yaml'))
@@ -129,7 +130,7 @@ def ensemble_train_main():
 
             trainer = pl.Trainer()
 
-            train_predictions = trainer.predict(model, datamodule, return_predictions=True)
+            train_predictions = trainer.predict(model, dataloader, return_predictions=True)
 
             embeds[:, idx] = train_predictions
 
@@ -139,7 +140,7 @@ def ensemble_train_main():
 
         pickle.dump(clf, open(f'SVR_FOLD_{idx}.pkl'))
 
-        datamodule = PawDataset.as_dataloader(val_df,
+        dataloader = PawDataset.as_dataloader(val_df,
                                               Augmentation.get_augmentation_by_mode('tta'),
                                               ensemble_config,
                                               **ensemble_config.data_loader)
@@ -155,10 +156,37 @@ def ensemble_train_main():
             for idx in range(ensemble_config.tta_steps):
                 trainer = pl.Trainer()
 
-                train_predictions = trainer.predict(model, datamodule, return_predictions=True)
+                train_predictions = trainer.predict(model, dataloader, return_predictions=True)
 
                 tta_preds[:, idx] = train_predictions
 
             val_embeds[:, idx] = np.apply_along_axis(np.mean, axis=1, arr=tta_preds)
 
-        #TODO
+        clf_preds = clf.predict(val_embeds)
+
+        targets = val_df['Pawpularity'].values
+
+        nn_rmse = np.sqrt(np.mean(targets - val_embeds) ** 2)
+        clf_rmse = np.sqrt(np.mean(targets - clf_preds) ** 2)
+
+        print(f"NN RMSE: {nn_rmse}")
+        print(f"Clf RMSE: {clf_rmse}")
+
+        def minimize_rmse(x, *args):
+            nn_preds = args[0][:, 0]
+            clf_preds = args[0][:, 1]
+            targets = args[0][:, 2]
+            oof = (1-x)*nn_preds + x*clf_preds
+            oof_rmse = np.sqrt(np.mean(targets - oof) ** 2)
+            return oof_rmse
+        
+        result = optimize.minimize(minimize_rmse,
+                                   x0=[0.5,], 
+                                   args=(val_embeds, clf_preds, targets),
+                                   bounds=((0, 1),),
+                                   method='BFGS')
+        
+        best_oof_preds = (1-result.x)*val_embeds + result.x*clf_preds
+        oof_rmse = np.sqrt(np.mean(targets-best_oof_preds)**2)
+
+        print(f"Ensemble RMSE: {oof_rmse}")
