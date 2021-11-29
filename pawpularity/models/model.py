@@ -98,8 +98,10 @@ class Model(LightningModule):
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
         images, _ = batch
-        logits = self.forward(images).sigmoid().detach().cpu() * 100.
-        return logits
+        logits, embeddings = self.model(images, True)
+        pred = logits.squeeze(1).sigmoid().detach().cpu().numpy() * 100.
+        embeddings = embeddings.detach().cpu().numpy()
+        return {'pred': pred, 'embeddings': embeddings}
     
     def _share_step(self, batch, mode):
         images, labels = batch

@@ -9,5 +9,5 @@ scikit-learn
 pandas
 seaborn
 ttach
-opencv-contrib-python
+opencv-contrib-python-headless
 timm

@@ -8,7 +8,7 @@ class SwinLarge(nn.Module):
         super().__init__()
         self.cfg = cfg
         self.backbone = timm.create_model(
-            'swin_large_patch4_window7_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
+            'swin_base_patch4_window7_224', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
         self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
@@ -31,7 +31,7 @@ class SwinLarge(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -39,6 +39,10 @@ class SwinLarge(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -49,7 +53,7 @@ class SwinLargev2(nn.Module):
         super().__init__()
         self.cfg = cfg
         self.backbone = timm.create_model(
-            'swin_large_patch4_window12_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
+            'swin_base_patch4_window12_384', pretrained=self.cfg.use_pretrained, num_classes=0, in_chans=3
         )
         num_features = self.backbone.num_features
         self.dropout = None if not self.cfg.use_dropout else nn.Dropout(
@@ -72,7 +76,7 @@ class SwinLargev2(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -80,6 +84,10 @@ class SwinLargev2(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -113,7 +121,7 @@ class SwinSmall(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -121,6 +129,10 @@ class SwinSmall(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -154,7 +166,7 @@ class SwinTiny(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -162,5 +174,9 @@ class SwinTiny(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x

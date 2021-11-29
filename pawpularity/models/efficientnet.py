@@ -31,7 +31,7 @@ class EfficientNetV2Large(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -39,6 +39,10 @@ class EfficientNetV2Large(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -72,7 +76,7 @@ class EfficientNetV2Medium(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -80,6 +84,10 @@ class EfficientNetV2Medium(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -113,7 +121,7 @@ class EfficientNetV2Small(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -121,6 +129,10 @@ class EfficientNetV2Small(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -154,7 +166,7 @@ class EfficientNetB0(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -162,6 +174,10 @@ class EfficientNetB0(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -195,7 +211,7 @@ class EfficientNetB1(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -203,6 +219,10 @@ class EfficientNetB1(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -236,7 +256,7 @@ class EfficientNetB2(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -244,6 +264,10 @@ class EfficientNetB2(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -277,7 +301,7 @@ class EfficientNetB3(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -285,6 +309,10 @@ class EfficientNetB3(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -318,7 +346,7 @@ class EfficientNetB4(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -326,6 +354,10 @@ class EfficientNetB4(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -359,7 +391,7 @@ class EfficientNetB5(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -367,5 +399,9 @@ class EfficientNetB5(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x

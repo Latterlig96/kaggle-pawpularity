@@ -9,12 +9,12 @@ class Config:
     epochs: int = 5
     shuffle: bool = True
     n_splits: int = 10
-    root_df: str = './pawpularity/data/pawpularity_data_10_folds_47_seed.csv'
+    root_df: str = './pawpularity/data/pawpularity_data_10_folds_999_seed.csv'
     root_img: str = './pawpularity/data/train'
     root_submission: str = './pawpularity/data/sample_submission.csv'
     model_name: str = 'ViTHybridSmallv2'
     use_pretrained: bool = True
-    image_size: typing.Tuple[int] = (768, 768)
+    image_size: typing.Tuple[int] = (384, 384)
     image_mean: typing.Tuple[float] = (0.485, 0.456, 0.406)
     image_std: typing.Tuple[float] = (0.229, 0.224, 0.225)
     output_dim: int = 1
@@ -33,7 +33,7 @@ class Config:
     })
 
     resizer: typing.Dict[str, typing.Union[str, int]] = dataclasses.field(default_factory=lambda: {
-        'apply': True,
+        'apply': False,
         'in_channels': 3,
         'out_channels': 3,
         'num_kernels': 16,
@@ -44,7 +44,7 @@ class Config:
     })
 
     stn: typing.Dict[str, typing.Union[str, bool]] = dataclasses.field(default_factory=lambda: {
-        'apply': True,
+        'apply': False,
         'apply_after_resizer': False
     })
 

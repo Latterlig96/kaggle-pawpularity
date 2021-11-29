@@ -1,5 +1,5 @@
 import argparse
-from .train import train_main, resizer_train_main
+from .train import train_main, resizer_train_main, ensemble_train_main
 from .test import test_main
 from .utils import show_cam, show_training_results
 
@@ -20,6 +20,8 @@ if __name__ == "__main__":
         train_main()
     elif args.mode == "train-resizer":
         resizer_train_main()
+    elif args.mode == "train-ensemble":
+        ensemble_train_main()
     elif args.mode == "test":
         test_main()
     elif args.mode == "utils":

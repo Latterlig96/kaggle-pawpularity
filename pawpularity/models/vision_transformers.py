@@ -1,6 +1,5 @@
 import timm
 import torch.nn as nn
-import cv2
 
 
 class ViTTiny(nn.Module):
@@ -32,7 +31,7 @@ class ViTTiny(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -40,6 +39,10 @@ class ViTTiny(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -73,7 +76,7 @@ class ViTTinyv2(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -81,6 +84,10 @@ class ViTTinyv2(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -114,7 +121,7 @@ class ViTSmall(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -122,6 +129,10 @@ class ViTSmall(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -155,7 +166,7 @@ class ViTSmallv2(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -163,6 +174,10 @@ class ViTSmallv2(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -196,7 +211,7 @@ class ViTLarge(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -204,6 +219,10 @@ class ViTLarge(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -237,7 +256,7 @@ class ViTLargev2(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -245,6 +264,10 @@ class ViTLargev2(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -278,7 +301,7 @@ class ViTHybridTiny(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -286,6 +309,10 @@ class ViTHybridTiny(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -319,7 +346,7 @@ class ViTHybridTinyv2(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -327,6 +354,10 @@ class ViTHybridTinyv2(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -360,7 +391,7 @@ class ViTHybridSmall(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -368,6 +399,10 @@ class ViTHybridSmall(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -401,7 +436,7 @@ class ViTHybridSmallv2(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -409,6 +444,10 @@ class ViTHybridSmallv2(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -442,7 +481,7 @@ class ViTHybridLarge(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -450,6 +489,10 @@ class ViTHybridLarge(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
 
@@ -483,7 +526,7 @@ class ViTHybridLargev2(nn.Module):
             from .stn import StnSmall
             self.stn2 = StnSmall(self.cfg)
 
-    def forward(self, x):
+    def forward(self, x, return_embeds: bool = False):
         if self.apply_stn:
             x = self.stn1(x)
         if self.apply_resizer:
@@ -491,5 +534,9 @@ class ViTHybridLargev2(nn.Module):
         if self.apply_after_resizer:
             x = self.stn2(x)
         x = self.backbone(x)
+        if return_embeds:
+            embeddings = x
+            logits = self.fc(x)
+            return logits, embeddings
         x = self.fc(x)
         return x
