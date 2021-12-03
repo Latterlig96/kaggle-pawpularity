@@ -13,7 +13,7 @@ class Config:
     root_img: str = './pawpularity/data/train'
     root_submission: str = './pawpularity/data/sample_submission.csv'
     model_name: str = 'ViTHybridSmallv2'
-    use_pretrained: bool = True
+    use_pretrained: bool = False
     image_size: typing.Tuple[int] = (384, 384)
     image_mean: typing.Tuple[float] = (0.485, 0.456, 0.406)
     image_std: typing.Tuple[float] = (0.229, 0.224, 0.225)

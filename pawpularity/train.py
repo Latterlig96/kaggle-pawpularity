@@ -1,7 +1,7 @@
 
 import os
 import pickle
-
+from loguru import logger
 import numpy as np
 import pandas as pd
 import pytorch_lightning as pl
@@ -65,7 +65,7 @@ def resizer_train_main():
     torch.autograd.set_detect_anomaly(True)
     torch.backends.cudnn.benchmark = True
     torch.use_deterministic_algorithms = True
-    
+
     config = ResizerConfig()
     seed_everything(config.seed)
 
@@ -106,7 +106,7 @@ def resizer_train_main():
 
 
 def ensemble_train_main():
-    from cuml import SVR
+    from cuml import SVR, Ridge
     import scipy.optimize as optimize
 
     torch.autograd.set_detect_anomaly(True)
@@ -123,33 +123,62 @@ def ensemble_train_main():
     folds = ensemble_config.n_folds
 
     for fold in range(folds):
-        print(f"Training fold {fold}")
+        logger.info(f"Training fold {fold}")
 
         train_df = df.loc[df["fold"] != fold].reset_index(drop=True)
         val_df = df.loc[df["fold"] == fold].reset_index(drop=True)
-        
-        train_embeds = np.zeros((len(ensemble_config.first_level_models), len(train_df), 384))
+
+        vit_train_embeds = np.zeros((len(train_df), 384))
+        swin_train_embeds = np.zeros((len(train_df), 1024))
 
         train_dataloader = PawDataset.as_dataloader(train_df,
-                                                Augmentation(ensemble_config).get_augmentation_by_mode('train'),
-                                                ensemble_config,
-                                                **ensemble_config.data_loader)
-        
-        for idx, name in enumerate(ensemble_config.first_level_models):
-            model = Model.load_from_checkpoint(os.path.join(name, 'default', f'version_{fold}', 'checkpoints', 'best_loss.ckpt'), cfg=main_config)
+                                                    Augmentation(
+                                                        ensemble_config).get_augmentation_by_mode('train'),
+                                                    ensemble_config,
+                                                    **ensemble_config.data_loader)
+
+        for name in ensemble_config.first_level_models:
+            main_config.model_name = name
+            if os.path.exists(f'SVR_FOLD_{fold}_{name}.pkl'):
+                logger.info(f"Skipping training {name}, not necessary")
+                continue
+
+            model = Model.load_from_checkpoint(os.path.join(
+                name, 'default', f'version_{fold}', 'checkpoints', 'best_loss.ckpt'), cfg=main_config)
 
             trainer = pl.Trainer(**ensemble_config.trainer)
 
-            train_predictions = trainer.predict(model, train_dataloader, return_predictions=True)
+            train_predictions = trainer.predict(
+                model, train_dataloader, return_predictions=True)
 
-            train_embeds[idx, ...] = np.concatenate([pred['embeddings'] for pred in train_predictions], axis=0)
+            if name == 'ViTHybridSmallv2':
+                vit_train_embeds = np.concatenate(
+                    [pred['embeddings'] for pred in train_predictions], axis=0)
+            else:
+                swin_train_embeds = np.concatenate(
+                    [pred['embeddings'] for pred in train_predictions], axis=0)
 
         classifiers = []
 
-        for name, arr in zip(ensemble_config.first_level_models, train_embeds):
+        for name in ensemble_config.first_level_models:
+            if os.path.exists(f'SVR_FOLD_{fold}_{name}.pkl'):
+                logger.info(
+                    f"Skipping training SVR_FOLD_{fold}_{name}, model already exists")
+                with open(f'SVR_FOLD_{fold}_{name}.pkl', 'rb') as clf:
+                    clf = pickle.load(clf)
+                    classifiers.append(clf)
+                continue
+
+            logger.info(f"Train SVR on {name} embeddings")
+
             clf = SVR(C=20.0, verbose=True)
 
-            clf.fit(arr.astype('float32'), train_df['Pawpularity'].values.astype('int32'))
+            if name == 'ViTHybridSmallv2':
+                clf.fit(vit_train_embeds.astype('float32'),
+                        train_df['Pawpularity'].values.astype('int32'))
+            else:
+                clf.fit(swin_train_embeds.astype('float32'),
+                        train_df['Pawpularity'].values.astype('int32'))
 
             with open(f'SVR_FOLD_{fold}_{name}.pkl', 'wb') as f:
                 pickle.dump(clf, f)
@@ -157,59 +186,114 @@ def ensemble_train_main():
             classifiers.append(clf)
 
         val_dataloader = PawDataset.as_dataloader(val_df,
-                                              Augmentation(ensemble_config).get_augmentation_by_mode('tta'),
-                                              ensemble_config,
-                                              **ensemble_config.data_loader)
-        
-        val_embeds = np.zeros((len(ensemble_config.first_level_models), len(val_df), 384))
-        val_targets = np.zeros((len(val_df), len(ensemble_config.first_level_models)))
+                                                  Augmentation(
+                                                      ensemble_config).get_augmentation_by_mode('tta'),
+                                                  ensemble_config,
+                                                  **ensemble_config.data_loader)
+
+        vit_val_embeds = np.zeros((len(val_df), 384))
+        swin_val_embeds = np.zeros((len(val_df), 1024))
+
+        val_targets = np.zeros(
+            (len(val_df), len(ensemble_config.first_level_models)))
 
         for idx, name in enumerate(ensemble_config.first_level_models):
+            main_config.model_name = name
 
-            tta_embed_preds = np.zeros((ensemble_config.tta_steps, len(val_df), 384))
+            if name == 'ViTHybridSmallv2':
+                tta_embed_preds = np.zeros(
+                    (ensemble_config.tta_steps, len(val_df), 384))
+            else:
+                tta_embed_preds = np.zeros(
+                    (ensemble_config.tta_steps, len(val_df), 1024))
+
             tta_preds = np.zeros((len(val_df), ensemble_config.tta_steps))
-            model = Model.load_from_checkpoint(os.path.join(name, 'default', f'version_{fold}', 'checkpoints', 'best_loss.ckpt'), cfg=main_config)
+            model = Model.load_from_checkpoint(os.path.join(
+                name, 'default', f'version_{fold}', 'checkpoints', 'best_loss.ckpt'), cfg=main_config)
 
             for step in range(ensemble_config.tta_steps):
                 trainer = pl.Trainer(**ensemble_config.trainer)
 
-                valid_predictions = trainer.predict(model, val_dataloader, return_predictions=True)
+                valid_predictions = trainer.predict(
+                    model, val_dataloader, return_predictions=True)
 
-                tta_embed_preds[step, ...] = np.concatenate([pred['embeddings'] for pred in valid_predictions], axis=0)
-                tta_preds[:, step] = np.concatenate([pred['pred'] for pred in valid_predictions], axis=0)
+                tta_embed_preds[step, ...] = np.concatenate(
+                    [pred['embeddings'] for pred in valid_predictions], axis=0)
+                tta_preds[:, step] = np.concatenate(
+                    [pred['pred'] for pred in valid_predictions], axis=0)
 
-            val_embeds[idx, ...] = np.apply_along_axis(np.mean, axis=0, arr=tta_embed_preds)
-            val_targets[:, idx] = np.apply_along_axis(np.mean, axis=1, arr=tta_preds)
-        
-        for idx, (embeds, clf) in enumerate(zip(val_embeds, classifiers)):
+            if name == 'ViTHybridSmallv2':
+                vit_val_embeds = np.apply_along_axis(
+                    np.mean, axis=0, arr=tta_embed_preds)
+            else:
+                swin_val_embeds = np.apply_along_axis(
+                    np.mean, axis=0, arr=tta_embed_preds)
+
+            val_targets[:, idx] = np.apply_along_axis(
+                np.mean, axis=1, arr=tta_preds)
+
+        oof = np.zeros((len(val_df), len(ensemble_config.first_level_models)))
+
+        for idx, (embeds, name, clf) in enumerate(zip([vit_val_embeds, swin_val_embeds], ensemble_config.first_level_models, classifiers)):
 
             clf_preds = clf.predict(embeds.astype('float32'))
 
+            oof[:, idx] = clf_preds
+
             targets = val_df['Pawpularity'].values
 
-            nn_preds = val_targets[:, idx]
-
-            nn_rmse = np.sqrt(np.mean((targets - nn_preds)**2.0))
             clf_rmse = np.sqrt(np.mean((targets - clf_preds)**2.0))
 
-            print(f"NN RMSE: {nn_rmse}")
-            print(f"Clf RMSE: {clf_rmse}")
+            logger.info(f"SVR fold: {fold} name: {name} RMSE: {clf_rmse}")
 
-            def minimize_rmse(x, *args):
-                nn_preds = args[0]
-                clf_preds = args[1]
-                targets = args[2]
-                oof = (1-x)*nn_preds + x*clf_preds
-                oof_rmse = np.sqrt(np.mean(targets - oof) ** 2)
-                return oof_rmse
-            
-            result = optimize.minimize(minimize_rmse,
-                                    x0=[0.5,], 
-                                    args=(nn_preds, clf_preds, targets),
-                                    bounds=((0, 1),),
-                                    method='L-BFGS-B')
-            
-            oof = (1-result.x)*np.array(nn_preds) + result.x*np.array(clf_preds)
-            oof_rmse = np.sqrt(np.mean((targets - oof)**2.0))
+        targets = val_df['Pawpularity'].values
 
-            print(f"Ensemble RMSE: {oof_rmse}")
+        train = oof[int(oof.shape[0] * ensemble_config.holdout_percent):, :]
+        holdout_train = oof[:int(
+            oof.shape[0] * ensemble_config.holdout_percent), :]
+        train_targets = targets[int(
+            targets.shape[0] * ensemble_config.holdout_percent):]
+        holdout_targets = targets[:int(
+            targets.shape[0] * ensemble_config.holdout_percent)]
+
+        if os.path.exists(f'RIDGE_FOLD_{fold}.pkl'):
+            logger.info(
+                f'Skipping training RIDGE_FOLD_{fold}, model already exists')
+            with open(f'RIDGE_FOLD_{fold}.pkl', 'rb') as clf:
+                ridge_clf = pickle.load(clf)
+            ridge_preds = ridge_clf.predict(holdout_train)
+        else:
+            ridge_clf = Ridge(alpha=1.0, solver='svd', verbose=True)
+            ridge_clf.fit(train.astype('float32'),
+                          train_targets.astype('int32'))
+            with open(f'RIDGE_FOLD_{fold}.pkl', 'wb') as f:
+                pickle.dump(ridge_clf, f)
+            ridge_preds = ridge_clf.predict(holdout_train)
+
+        vit_rmse = np.sqrt(np.mean((targets - val_targets[:, 0])**2.0))
+        swin_rmse = np.sqrt(np.mean((targets - val_targets[:, 1])**2.0))
+
+        ridge_rmse = np.sqrt(np.mean((holdout_targets - ridge_preds)**2.0))
+
+        logger.info(f"VIT fold: {fold} RMSE: {vit_rmse}")
+        logger.info(f"Swin fold: {fold} RMSE: {swin_rmse}")
+        logger.info(f"Ridge fold: {fold} RMSE: {ridge_rmse}")
+
+        def minimize_rmse(x, *args):
+            vit_preds = args[0][:, 0]
+            swin_preds = args[0][:, 1]
+            targets = args[1]
+            oof = (1-x)*vit_preds + x*swin_preds
+            oof_rmse = np.sqrt(np.mean(targets - oof) ** 2)
+            return oof_rmse
+
+        result = optimize.differential_evolution(minimize_rmse,
+                                                 args=(val_targets, targets),
+                                                 bounds=((0, 1),))
+
+        vit_swin_ensemble = (
+            1-result.x)*np.array(val_targets[:, 0]) + result.x*np.array(val_targets[:, 1])
+        vit_swin_rmse = np.sqrt(np.mean((targets - vit_swin_ensemble)**2.0))
+        logger.info(f"Vit/Swin Ensemble RMSE: {vit_swin_rmse}")
+        final_rmse = (vit_swin_rmse + ridge_rmse) / 2
+        logger.info(f"Final RMSE: {final_rmse}")

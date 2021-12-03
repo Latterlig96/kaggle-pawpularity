@@ -7,8 +7,10 @@ class EnsembleConfig:
     n_folds: int = 10
     root_df: str = './pawpularity/data/pawpularity_data_10_folds_999_seed.csv'
     root_img: str = './pawpularity/data/train'
-    first_level_models: typing.Tuple[str] = ('ViTHybridSmallv2',)
+    first_level_models: typing.Tuple[str] = ('ViTHybridSmallv2', 'SwinLargev2')
     second_level_models: typing.Tuple[str] = ('SVR',)
+    third_level_models: typing.Tuple[str] = ('Ridge',)
+    holdout_percent: float = 0.2
     tta_steps: int = 5
     image_size: typing.Tuple[int] = (384, 384)
     image_mean: typing.Tuple[float] = (0.485, 0.456, 0.406)

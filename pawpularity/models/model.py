@@ -102,7 +102,7 @@ class Model(LightningModule):
         pred = logits.squeeze(1).sigmoid().detach().cpu().numpy() * 100.
         embeddings = embeddings.detach().cpu().numpy()
         return {'pred': pred, 'embeddings': embeddings}
-    
+
     def _share_step(self, batch, mode):
         images, labels = batch
         labels = labels.float() / 100.0
