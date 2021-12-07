@@ -137,6 +137,9 @@ dmypy.json
 # Data related
 data/
 
+#Logs
+lightning_logs/
+
 # Models
 SwinLarge/
 SwinLargev2/
@@ -166,3 +169,6 @@ EfficientNetB5/
 Levit/
 Resizer/
 SVR*
+RIDGE*
+VIT_SWIN_RESULT*
+WEIGHTED_RESULT*

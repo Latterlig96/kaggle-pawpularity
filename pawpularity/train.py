@@ -325,7 +325,7 @@ def ensemble_train_stacking_wihout_second_level_fold():
 def ensemble_train_stacking_with_second_level_fold():
     import scipy.optimize as optimize
     from cuml import SVR, Ridge
-    from scikit_learn.model_selection import KFold
+    from sklearn.model_selection import KFold
 
     torch.autograd.set_detect_anomaly(True)
     torch.backends.cudnn.benchmark = True
@@ -470,9 +470,9 @@ def ensemble_train_stacking_with_second_level_fold():
 
         holdout_preds = []
 
-        for idx, (train_idx, val_idx) in kf.split(oof):
+        for idx, (train_idx, val_idx) in enumerate(kf.split(oof)):
             holdout_train, holdout_train_target = oof[train_idx], targets[train_idx]
-            holdout_val, holdout_val_target = oof[val_idx], oof[val_idx]
+            holdout_val, holdout_val_target = oof[val_idx], targets[val_idx]
             if os.path.exists(f'RIDGE_FOLD_{fold}_{idx}.pkl'):
                 logger.info(
                     f'Skipping training RIDGE_FOLD_{fold}_{idx}, model already exists')
@@ -507,9 +507,9 @@ def ensemble_train_stacking_with_second_level_fold():
             return oof_rmse
 
         def minimize_weighted_rmse(x, *args):
-            vit_swin_rmse = args[0][:, 0]
-            ridge_holdout_rmse = args[0][:, 1]
-            oof = x[0]*vit_swin_rmse + x[1]*ridge_holdout_rmse
+            vit_swin_rmse = args[0]
+            ridge_holdout_rmse = args[1]
+            oof = (1-x)*vit_swin_rmse + x*ridge_holdout_rmse
             return oof
 
         result = optimize.differential_evolution(minimize_rmse,
@@ -524,20 +524,14 @@ def ensemble_train_stacking_with_second_level_fold():
         vit_swin_rmse = np.sqrt(np.mean((targets - vit_swin_ensemble)**2.0))
         logger.info(f"Vit/Swin Ensemble RMSE: {vit_swin_rmse}")
 
-        def fconstr(x): return 1 - sum(x)
-        constraints = ({'type': 'eq', 'fun': fconstr})
         result_weighted = optimize.differential_evolution(minimize_weighted_rmse,
-                                                          args=(
-                                                              vit_swin_rmse, ridge_holdout_rmse),
-                                                          bounds=(
-                                                              (0, 1), (0, 1)),
-                                                          constraints=constraints)
+                                                          args=(vit_swin_rmse, ridge_holdout_rmse),
+                                                          bounds=((0, 1),))
 
         with open(f'WEIGHTED_RESULT_{fold}.pkl', 'wb') as weighted_result:
             pickle.dump(result_weighted.x, weighted_result)
 
-        final_rmse = (result_weighted.x[0]*vit_swin_rmse +
-                      result_weighted.x[1]*ridge_holdout_rmse)
+        final_rmse = (1-result_weighted.x)*vit_swin_rmse + result_weighted.x*ridge_holdout_rmse
         logger.info(f"Final RMSE: {final_rmse}")
 
 
@@ -702,18 +696,22 @@ def ensemble_train_vit_swin_svr():
             return final_rmse
 
         def fconstr(x): return 1 - sum(x)
-        constraints = ({'type': 'eq', 'fun': fconstr})
+
+        constraint = optimize.NonlinearConstraint(fconstr, 0, 1)
         result_weighted = optimize.differential_evolution(minimize_weighted_rmse,
                                                           args=(
                                                               val_targets, oof, targets),
                                                           bounds=(
                                                               (0, 1), (0, 1), (0, 1), (0, 1)),
-                                                          constraints=constraints)
+                                                          constraints=(constraint))
 
         with open(f'WEIGHTED_RESULT_{fold}.pkl', 'wb') as weighted_result:
             pickle.dump(result_weighted.x, weighted_result)
 
-        final_rmse = result_weighted.x[0]*val_targets[:, 0] + result_weighted.x[1] * \
+        final_oof = result_weighted.x[0]*val_targets[:, 0] + result_weighted.x[1] * \
             val_targets[:, 1] + result_weighted.x[2] * \
             oof[:, 0] + result_weighted.x[3] * oof[:, 1]
+        
+        final_rmse = np.sqrt(np.mean((targets - final_oof)**2.0))
+
         logger.info(f"Final RMSE: {final_rmse}")
