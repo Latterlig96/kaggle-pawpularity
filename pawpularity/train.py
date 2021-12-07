@@ -4,12 +4,11 @@ import numpy as np
 import pandas as pd
 import pytorch_lightning as pl
 import torch
-from loguru import logger
 from pytorch_lightning import callbacks
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.utilities.seed import seed_everything
-
+from loguru import logger
 from pawpularity.augmentations import Augmentation
 from pawpularity.config import Config, EnsembleConfig, ResizerConfig
 from pawpularity.datasets import PawDataset, PawModule, ResizerModule
@@ -104,7 +103,7 @@ def resizer_train_main():
         trainer.fit(model, datamodule=datamodule)
 
 
-def ensemble_train_stacking_wihout_second_level_fold():
+def ensemble_train_stacking_without_second_level_fold():
     import scipy.optimize as optimize
     from cuml import SVR, Ridge
 
@@ -525,13 +524,15 @@ def ensemble_train_stacking_with_second_level_fold():
         logger.info(f"Vit/Swin Ensemble RMSE: {vit_swin_rmse}")
 
         result_weighted = optimize.differential_evolution(minimize_weighted_rmse,
-                                                          args=(vit_swin_rmse, ridge_holdout_rmse),
+                                                          args=(
+                                                              vit_swin_rmse, ridge_holdout_rmse),
                                                           bounds=((0, 1),))
 
         with open(f'WEIGHTED_RESULT_{fold}.pkl', 'wb') as weighted_result:
             pickle.dump(result_weighted.x, weighted_result)
 
-        final_rmse = (1-result_weighted.x)*vit_swin_rmse + result_weighted.x*ridge_holdout_rmse
+        final_rmse = (1-result_weighted.x)*vit_swin_rmse + \
+            result_weighted.x*ridge_holdout_rmse
         logger.info(f"Final RMSE: {final_rmse}")
 
 
@@ -711,7 +712,7 @@ def ensemble_train_vit_swin_svr():
         final_oof = result_weighted.x[0]*val_targets[:, 0] + result_weighted.x[1] * \
             val_targets[:, 1] + result_weighted.x[2] * \
             oof[:, 0] + result_weighted.x[3] * oof[:, 1]
-        
+
         final_rmse = np.sqrt(np.mean((targets - final_oof)**2.0))
 
         logger.info(f"Final RMSE: {final_rmse}")
