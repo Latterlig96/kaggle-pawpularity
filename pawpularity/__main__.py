@@ -22,7 +22,7 @@ if __name__ == "__main__":
         train_main()
     elif args.mode == "train-resizer":
         resizer_train_main()
-    elif args.mode == "ensemble-train-stacking-wihout-second-level-fold":
+    elif args.mode == "ensemble-train-stacking-without-second-level-fold":
         ensemble_train_stacking_without_second_level_fold()
     elif args.mode == "ensemble-train-stacking-with-second-level-fold":
         ensemble_train_stacking_with_second_level_fold()
@@ -30,9 +30,9 @@ if __name__ == "__main__":
         ensemble_train_vit_swin_svr()
     elif args.mode == "test":
         test_main()
-    elif args.mode == "test-ensemble-stacking-with_second_level_fold":
+    elif args.mode == "test-ensemble-stacking-with-second-level-fold":
         test_ensemble_stacking_with_second_level_fold()
-    elif args.mode == "test-ensemble_train_stacking_without_second_level_fold":
+    elif args.mode == "test-ensemble-without-second-level-fold":
         test_ensemble_stacking_without_second_level_fold()
     elif args.mode == "test-ensemble-vit-swin-svr":
         test_ensemble_vit_swin_svr()

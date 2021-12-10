@@ -286,9 +286,9 @@ def ensemble_train_stacking_without_second_level_fold():
             return oof_rmse
 
         def minimize_weighted_rmse(x, *args):
-            vit_swin_rmse = args[0][:, 0]
-            ridge_rmse = args[0][:, 1]
-            oof = x[0]*vit_swin_rmse + x[1]*ridge_rmse
+            vit_swin_rmse = args[0]
+            ridge_rmse = args[0]
+            oof = (1-x)*vit_swin_rmse + x*ridge_rmse
             final_oof = oof
             return final_oof
 
@@ -304,20 +304,16 @@ def ensemble_train_stacking_without_second_level_fold():
         vit_swin_rmse = np.sqrt(np.mean((targets - vit_swin_ensemble)**2.0))
         logger.info(f"Vit/Swin Ensemble RMSE: {vit_swin_rmse}")
 
-        def fconstr(x): return 1 - sum(x)
-        constraints = ({'type': 'eq', 'fun': fconstr})
         result_weighted = optimize.differential_evolution(minimize_weighted_rmse,
                                                           args=(
                                                               vit_swin_rmse, ridge_rmse),
                                                           bounds=(
-                                                              (0, 1), (0, 1)),
-                                                          constraints=constraints)
+                                                              (0, 1),))
 
         with open(f'WEIGHTED_RESULT_{fold}.pkl', 'wb') as weighted_result:
             pickle.dump(result_weighted.x, weighted_result)
 
-        final_rmse = (result_weighted.x[0]*vit_swin_rmse +
-                      result_weighted.x[1]*ridge_rmse)
+        final_rmse = (1-result_weighted.x)*vit_swin_rmse + result_weighted.x*ridge_rmse
         logger.info(f"Final RMSE: {final_rmse}")
 
 
