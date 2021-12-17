@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import argparse
 from sklearn.model_selection import StratifiedKFold
 
@@ -30,12 +31,20 @@ if __name__ == "__main__":
         raise ValueError("Dataframe not provided, please try again")
     df = pd.read_csv(args.df)
 
+    num_bins = int(np.floor(1+(3.3)*(np.log2(len(df)))))
+
+    df['norm_score'] = df['Pawpularity']/100
+
+    df['bins'] = pd.cut(df['norm_score'], bins=num_bins, labels=False)
+
+    df = df.sample(frac=1).reset_index(drop=True)
+
     df["fold"] = -1
 
     skf = StratifiedKFold(n_splits=args.folds,
                           shuffle=True, random_state=args.seed)
     
-    for fold, (train_idx, val_idx) in enumerate(skf.split(df["Id"], df["Pawpularity"])):
+    for fold, (train_idx, val_idx) in enumerate(skf.split(df.index, df["Pawpularity"])):
         df.loc[val_idx, "fold"] = fold
     
-    df.to_csv(f'pawpularity_data_{args.folds}_folds_{args.seed}_seed.csv')
+    df.to_csv(f'pawpularity_data_{args.folds}_folds_bins_{num_bins}_{args.seed}_seed.csv')
